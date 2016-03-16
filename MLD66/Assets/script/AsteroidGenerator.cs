@@ -8,7 +8,7 @@ public class AsteroidGenerator : MonoBehaviour {
 	public int count = 25;
 	public AnimationCurve sizeCurve;
 	public float radiusFactor = 0.5f;
-	public int depthBias = 5;
+	public int samplesPerChunk = 25;
 
 	Transform root = null;
 
@@ -18,7 +18,6 @@ public class AsteroidGenerator : MonoBehaviour {
 	}
 
 	public void Generate() {
-		int samplesPerChunk = 25;
 		if (root != null) {
 			DestroyImmediate(root.gameObject);
 		}
@@ -28,6 +27,7 @@ public class AsteroidGenerator : MonoBehaviour {
 			newChunk.name = "chunk" + c;
 			if (root == null) {
 				newChunk.parent = this.transform;
+				newChunk.localPosition = Vector3.zero;
 				root = newChunk;
 			}
 			else {
@@ -38,18 +38,10 @@ public class AsteroidGenerator : MonoBehaviour {
 						Vector3 position = UnityEngine.Random.onUnitSphere * radiusFactor;
 						position = chunk.TransformPoint(position);
 						if (!CheckInternal(position)) {
-							int depth = 0;
-							Transform t = chunk;
-							while (t != this.transform) {
-								t = t.parent;
-								depth ++;
-							}
-							for (int i = 0; i < depth * depthBias; i ++) {
-								points.Add(new PointSample {
-										position = position,
-										transform = chunk
-								});
-							}
+							points.Add(new PointSample {
+									position = position,
+									transform = chunk
+							});
 						}
 					}
 				}
