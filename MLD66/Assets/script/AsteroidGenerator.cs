@@ -3,18 +3,14 @@ using System.Collections.Generic;
 
 public class AsteroidGenerator : MonoBehaviour {
 
-	public GameObject chunkPrefab;
-
 	public int count = 25;
-	public AnimationCurve sizeCurve;
-	public float radiusFactor = 0.5f;
 	public int samplesPerChunk = 25;
+	public AsteroidChunk chunkPrefab;
 
-	Transform root = null;
+	AsteroidChunk root = null;
 
-	struct PointSample {
-		public Vector3 position;
-		public Transform transform;
+	void Start() {
+		Generate();
 	}
 
 	public void Generate() {
@@ -22,33 +18,23 @@ public class AsteroidGenerator : MonoBehaviour {
 			DestroyImmediate(root.gameObject);
 		}
 		for (int c = 0; c < count; c ++) {
-			float newSize = sizeCurve.Evaluate((float) c / count);
-			Transform newChunk = Instantiate(chunkPrefab).transform;
+			AsteroidChunk newChunk = Instantiate(chunkPrefab) as AsteroidChunk;
 			newChunk.name = "chunk" + c;
+			AsteroidChunk parent = null;
 			if (root == null) {
-				newChunk.parent = this.transform;
-				newChunk.localPosition = Vector3.zero;
+				newChunk.transform.parent = this.transform;
+				newChunk.transform.localPosition = Vector3.zero;
 				root = newChunk;
 			}
 			else {
 				//sample for points
-				List<PointSample> points = new List<PointSample>();
-				foreach (Transform chunk in tree(root)) {
-					for (int s = 0; s < samplesPerChunk; s ++) {
-						Vector3 position = UnityEngine.Random.onUnitSphere * radiusFactor;
-						position = chunk.TransformPoint(position);
-						if (!CheckInternal(position)) {
-							points.Add(new PointSample {
-									position = position,
-									transform = chunk
-							});
-						}
-					}
-				}
+				List<PointSample> points = null;
+				points = SamplePoints(samplesPerChunk, points);
 				if (points.Count > 0) {
 					PointSample sample = points[UnityEngine.Random.Range(0, points.Count)];
-					newChunk.parent = sample.transform;
-					newChunk.position = sample.position;
+					parent = sample.chunk;
+					newChunk.transform.parent = sample.chunk.transform;
+					newChunk.transform.position = sample.position;
 				}
 				else {
 					print("no place found for " + c);
@@ -56,16 +42,40 @@ public class AsteroidGenerator : MonoBehaviour {
 				}
 			}
 			if (newChunk != null) {
-				newChunk.localScale = Vector3.one * newSize;
-				newChunk.rotation = Random.rotation;
+				newChunk.Initialize(this, parent);
 			}
 		}
+		CenterMass();
 	}
 
-	IEnumerable<Transform> tree(Transform node) {
-		yield return node;
-		for (int c = 0; c < node.childCount; c ++) {
-			foreach (Transform child in tree(node.GetChild(c))) {
+	public List<PointSample> SamplePoints(int samplesPerChunk, List<PointSample> list = null) {
+		if (list == null) {
+			list = new List<PointSample>();
+		}
+		else {
+			list.Clear();
+		}
+		foreach (AsteroidChunk chunk in chunks()) {
+			for (int s = 0; s < samplesPerChunk; s ++) {
+				Vector3 position = UnityEngine.Random.onUnitSphere * chunk.radius;
+				position = chunk.transform.TransformPoint(position);
+				if (!CheckInternal(position)) {
+					list.Add(new PointSample {
+							position = position,
+							chunk = chunk
+					});
+				}
+			}
+		}
+		return list;
+	}
+
+	//TODO: use iteration instead of recursion for AsteroidGenerator.chunks()
+	IEnumerable<AsteroidChunk> chunks() { return chunks(root); }
+	IEnumerable<AsteroidChunk> chunks(AsteroidChunk chunk) {
+		yield return chunk;
+		for (int c = 0; c < chunk.childCount; c ++) {
+			foreach (AsteroidChunk child in chunks(chunk.GetChild(c))) {
 				yield return child;
 			}
 		}
@@ -73,13 +83,29 @@ public class AsteroidGenerator : MonoBehaviour {
 
 	bool CheckInternal(Vector3 point) {
 		//point is in world space
-		foreach (Transform chunk in tree(root)) {
-			Vector3 localPoint = chunk.InverseTransformPoint(point);
-			if ((localPoint.magnitude) < (radiusFactor)) {
+		foreach (AsteroidChunk chunk in chunks()) {
+			Vector3 localPoint = chunk.transform.InverseTransformPoint(point);
+			if ((localPoint.magnitude) < (chunk.radius)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
+	public void CenterMass() {
+		Vector3 position = Vector3.zero;
+		int count = 0;
+		foreach (AsteroidChunk chunk in chunks()) {
+			position += transform.InverseTransformPoint(chunk.transform.position);
+			count ++;
+		}
+		position /= count;
+		root.transform.localPosition = - position;
+	}
+
+}
+
+public struct PointSample {
+	public Vector3 position;
+	public AsteroidChunk chunk;
 }
