@@ -3,8 +3,10 @@ using System.Collections.Generic;
 
 public class AsteroidGenerator : MonoBehaviour {
 
-	public int count = 25;
+	public int chunkCount = 25;
 	public int samplesPerChunk = 25;
+	public int mineralNodesPerChunk = 5;
+	public MineralNode mineralNodePrefab;
 	public AsteroidChunk chunkPrefab;
 
 	AsteroidChunk root = null;
@@ -17,9 +19,10 @@ public class AsteroidGenerator : MonoBehaviour {
 		if (root != null) {
 			DestroyImmediate(root.gameObject);
 		}
-		for (int c = 0; c < count; c ++) {
+		List<PointSample> samples = null;
+		for (int c = 0; c < chunkCount; c ++) {
 			AsteroidChunk newChunk = Instantiate(chunkPrefab) as AsteroidChunk;
-			newChunk.name = "chunk" + c;
+			newChunk.name = chunkPrefab.name + c;
 			AsteroidChunk parent = null;
 			if (root == null) {
 				newChunk.transform.parent = this.transform;
@@ -27,11 +30,9 @@ public class AsteroidGenerator : MonoBehaviour {
 				root = newChunk;
 			}
 			else {
-				//sample for points
-				List<PointSample> points = null;
-				points = SamplePoints(samplesPerChunk, points);
-				if (points.Count > 0) {
-					PointSample sample = points[UnityEngine.Random.Range(0, points.Count)];
+				samples = SamplePoints(samplesPerChunk, samples);
+				if (samples.Count > 0) {
+					PointSample sample = samples[UnityEngine.Random.Range(0, samples.Count)];
 					parent = sample.chunk;
 					newChunk.transform.parent = sample.chunk.transform;
 					newChunk.transform.position = sample.position;
@@ -45,9 +46,22 @@ public class AsteroidGenerator : MonoBehaviour {
 				newChunk.Initialize(this, parent);
 			}
 		}
+		if (root != null) {
+			root.transform.rotation = Random.rotation;
+		}
 		CenterMass();
+		samples = SamplePoints(mineralNodesPerChunk, samples);
+		foreach (PointSample sample in samples) {
+			MineralNode node = Instantiate(mineralNodePrefab) as MineralNode;
+			node.name = mineralNodePrefab.name;
+			node.transform.SetParent(sample.chunk.transform, true);
+			node.transform.position = sample.position;
+			node.transform.forward = sample.chunk.transform.TransformDirection(node.transform.localPosition);
+		}
 	}
 
+	//sample for points in world space on the surface of chunks
+	//throws out samples that are inside one or more chunks
 	public List<PointSample> SamplePoints(int samplesPerChunk, List<PointSample> list = null) {
 		if (list == null) {
 			list = new List<PointSample>();

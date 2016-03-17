@@ -1,25 +1,29 @@
 fileFormatVersion: 2
-guid: c93619094da6afb4981b1ad9a7f94524
-timeCreated: 1458159208
+guid: 48515f8447be30543b6ad0ae6310a447
+timeCreated: 1458249329
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
     100002: bismuth_med
-    100004: rock_med
+    100004: mineralnode
+    100006: rock_med
     400000: //RootNode
     400002: bismuth_med
-    400004: rock_med
-    2300000: //RootNode
-    2300002: bismuth_med
+    400004: mineralnode
+    400006: rock_med
+    2300000: bismuth_med
+    2300002: mineralnode
     2300004: rock_med
-    3300000: //RootNode
-    3300002: bismuth_med
+    3300000: bismuth_med
+    3300002: mineralnode
     3300004: rock_med
-    4300000: Icosphere
-    4300002: bismuth_med
-    4300004: rock_med
+    4300000: bismuth_med
+    4300002: rock_med
+    4300004: mineralnode
+    7400000: Default Take
+    9500000: //RootNode
   materials:
     importMaterials: 0
     materialName: 0
@@ -44,7 +48,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 100
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1
@@ -60,9 +64,9 @@ ModelImporter:
     secondaryUVPackMargin: 4
     useFileScale: 1
   tangentSpace:
-    normalSmoothAngle: 0
+    normalSmoothAngle: 60
     normalImportMode: 0
-    tangentImportMode: 0
+    tangentImportMode: 3
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
@@ -78,7 +82,7 @@ ModelImporter:
     rootMotionBoneName: 
     hasTranslationDoF: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 0
+  animationType: 2
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
