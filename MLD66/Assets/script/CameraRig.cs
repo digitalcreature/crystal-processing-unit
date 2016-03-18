@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CameraRig : MonoBehaviour {
+public class CameraRig : SingletonBehaviour<CameraRig> {
 
 	public float sensitivity = 5f;
 	public MouseButton orbitButton = MouseButton.Right;
@@ -9,7 +9,7 @@ public class CameraRig : MonoBehaviour {
 	public float zoomSensitivity = 1;
 	public float zoomSmoothing = 10;
 
-	new Camera camera;
+	public new Camera camera { get; private set; }
 	float zoom;
 
 	void Awake() {

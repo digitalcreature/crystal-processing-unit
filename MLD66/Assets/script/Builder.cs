@@ -1,23 +1,13 @@
 using UnityEngine;
 
-public class Builder : MonoBehaviour {
+public class Builder : SingletonBehaviour<Builder> {
 
+	public LayerMask validLayers;
+	public LayerMask invalidLayers;
+	public float minimumDistance = .25f;
 	[Header("Materials")]
 	public Material validPlacing;
 	public Material invalidPlacing;
-
-	static Builder _main;
-	public static Builder main {
-		get {
-			if (_main == null) {
-				_main = FindObjectOfType<Builder>();
-				if (_main == null) {
-					Debug.LogWarning("No Builder in scene!");
-				}
-			}
-			return _main;
-		}
-	}
 
 	public void Build(Building buildingPrefab) {
 		Building building = Instantiate(buildingPrefab);
