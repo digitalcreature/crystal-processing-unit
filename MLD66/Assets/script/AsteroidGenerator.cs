@@ -30,7 +30,7 @@ public class AsteroidGenerator : MonoBehaviour {
 				root = newChunk;
 			}
 			else {
-				samples = SamplePoints(samplesPerChunk, samples);
+				samples = SampleSurfacePoints(samplesPerChunk, samples);
 				if (samples.Count > 0) {
 					PointSample sample = samples[UnityEngine.Random.Range(0, samples.Count)];
 					parent = sample.chunk;
@@ -50,19 +50,19 @@ public class AsteroidGenerator : MonoBehaviour {
 			root.transform.rotation = Random.rotation;
 		}
 		CenterMass();
-		samples = SamplePoints(mineralNodesPerChunk, samples);
+		samples = SampleSurfacePoints(mineralNodesPerChunk, samples);
 		foreach (PointSample sample in samples) {
 			MineralNode node = Instantiate(mineralNodePrefab) as MineralNode;
 			node.name = mineralNodePrefab.name;
 			node.transform.SetParent(sample.chunk.transform, true);
 			node.transform.position = sample.position;
-			node.transform.forward = sample.chunk.transform.TransformDirection(node.transform.localPosition);
+			node.transform.forward = sample.chunk.GetNormal(node.transform.position);
 		}
 	}
 
 	//sample for points in world space on the surface of chunks
 	//throws out samples that are inside one or more chunks
-	public List<PointSample> SamplePoints(int samplesPerChunk, List<PointSample> list = null) {
+	public List<PointSample> SampleSurfacePoints(int samplesPerChunk, List<PointSample> list = null) {
 		if (list == null) {
 			list = new List<PointSample>();
 		}
@@ -71,8 +71,7 @@ public class AsteroidGenerator : MonoBehaviour {
 		}
 		foreach (AsteroidChunk chunk in chunks()) {
 			for (int s = 0; s < samplesPerChunk; s ++) {
-				Vector3 position = UnityEngine.Random.onUnitSphere * chunk.radius;
-				position = chunk.transform.TransformPoint(position);
+				Vector3 position = chunk.GetSurfacePoint();
 				if (!CheckInternal(position)) {
 					list.Add(new PointSample {
 							position = position,
@@ -98,8 +97,7 @@ public class AsteroidGenerator : MonoBehaviour {
 	bool CheckInternal(Vector3 point) {
 		//point is in world space
 		foreach (AsteroidChunk chunk in chunks()) {
-			Vector3 localPoint = chunk.transform.InverseTransformPoint(point);
-			if ((localPoint.magnitude) < (chunk.radius)) {
+			if (chunk.PointIsInternal(point)) {
 				return true;
 			}
 		}
