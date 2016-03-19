@@ -7,7 +7,7 @@ public class Builder : SingletonBehaviour<Builder> {
 	public LayerMask validLayers;
 	public LayerMask invalidLayers;
 	public float minimumDistance = .25f;
-	[Header("Materials")]
+	public float rotateSpeed = 60;
 	public Material validPlacingMaterial;
 	public Material invalidPlacingMaterial;
 	public Material inProgressMaterial;

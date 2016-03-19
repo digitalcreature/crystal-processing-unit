@@ -8,6 +8,7 @@ public class CameraRig : SingletonBehaviour<CameraRig> {
 	public float zoomMax = 15;
 	public float zoomSensitivity = 1;
 	public float zoomSmoothing = 10;
+	public float rollSpeed = 15;
 
 	public new Camera camera { get; private set; }
 	float zoom;
@@ -23,6 +24,8 @@ public class CameraRig : SingletonBehaviour<CameraRig> {
 			float y = Input.GetAxis("Mouse Y") * sensitivity;
 			transform.Rotate(-y, x, 0);
 		}
+		float roll = Input.GetAxis("Roll Camera") * rollSpeed * Time.deltaTime;
+		transform.Rotate(0, 0, roll);
 		zoom -= Input.mouseScrollDelta.y * zoomSensitivity;
 		zoom = Mathf.Clamp(zoom, zoomMin, zoomMax);
 		Vector3 camPos = camera.transform.localPosition;
