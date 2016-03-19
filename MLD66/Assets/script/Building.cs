@@ -52,7 +52,7 @@ public class Building : MonoBehaviour {
 		collider = GetComponent<Collider>();
 	}
 
-	public enum State { Placing, Building, Active }
+	public enum State { Placing, Constructing, Active }
 
 	public void Initialize(Builder builder, Building prefab) {
 		this.builder = builder;
@@ -84,7 +84,7 @@ public class Building : MonoBehaviour {
 				bool valid = PositionValid(transform.position);
 				renderer.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
 				if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && renderer.enabled) {
-					state = State.Building;
+					state = State.Constructing;
 					builder.busy = false;
 					buildSpeed = 1;
 					count ++;
@@ -95,7 +95,7 @@ public class Building : MonoBehaviour {
 				}
 				break;
 			//building is constructing or deconstructing
-			case State.Building:
+			case State.Constructing:
 				SetChildrenActive(false);
 				collider.enabled = true;
 				renderer.enabled = true;
