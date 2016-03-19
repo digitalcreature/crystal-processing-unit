@@ -44,7 +44,7 @@ public class Building : MonoBehaviour {
 				}
 				bool valid = !Physics.CheckSphere(transform.position, builder.minimumDistance, builder.invalidLayers);
 				renderer.material = valid ? builder.validPlacing : builder.invalidPlacing;
-				if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid) {
+				if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && renderer.enabled) {
 					state = State.Building;
 				}
 				if (Input.GetMouseButtonDown((int) MouseButton.Right)) {
