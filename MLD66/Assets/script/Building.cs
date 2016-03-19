@@ -31,6 +31,7 @@ public class Building : MonoBehaviour {
 		switch (state) {
 			//building is being placed by player
 			case State.Placing:
+				builder.busy = true;
 				collider.enabled = false;
 				RaycastHit hit;
 				Ray ray = CameraRig.main.camera.ScreenPointToRay(Input.mousePosition);
@@ -42,13 +43,15 @@ public class Building : MonoBehaviour {
 				else {
 					renderer.enabled = false;
 				}
-				bool valid = !Physics.CheckSphere(transform.position, builder.minimumDistance, builder.invalidLayers);
-				renderer.material = valid ? builder.validPlacing : builder.invalidPlacing;
+				bool valid = PositionValid(transform.position);
+				renderer.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
 				if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && renderer.enabled) {
 					state = State.Building;
+					builder.busy = false;
 				}
 				if (Input.GetMouseButtonDown((int) MouseButton.Right)) {
 					Destroy(gameObject);
+					builder.busy = false;
 				}
 				break;
 			//building is constructing or deconstructing
@@ -64,6 +67,10 @@ public class Building : MonoBehaviour {
 				renderer.material = material;
 				break;
 		}
+	}
+
+	public virtual bool PositionValid(Vector3 position) {
+		return Builder.main.PositionValid(position);
 	}
 
 }
