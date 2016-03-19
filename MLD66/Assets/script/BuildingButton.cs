@@ -14,8 +14,8 @@ public class BuildingButton : MonoBehaviour {
 	}
 
 	void Update() {
-		text.text = string.Format("{0}\n({1})", buildingPrefab.name, buildingPrefab.count);
-		button.interactable = !Builder.main.busy;
+		text.text = string.Format("{0}\n({1}/{2})", buildingPrefab.name, buildingPrefab.count, buildingPrefab.maxCount);
+		button.interactable = !Builder.main.busy && buildingPrefab.CanBuild();
 	}
 
 	void StartPlacing() {

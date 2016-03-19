@@ -20,15 +20,12 @@ public class Builder : SingletonBehaviour<Builder> {
 	public bool busy;
 
 	public void StartPlacing(Building buildingPrefab) {
-		Building building = Instantiate(buildingPrefab);
-		building.name = buildingPrefab.name;
-		building.transform.parent = transform;
-		building.Initialize(this, buildingPrefab);
-	}
-
-	public bool PositionValid(Vector3 position) {
-		return !Physics.CheckSphere(position, obstacleRadius, obstacleLayers) &&
-				Physics.CheckSphere(position, maxBuildingDistance, buildingLayers);
+		if (buildingPrefab.CanBuild()) {
+			Building building = Instantiate(buildingPrefab);
+			building.name = buildingPrefab.name;
+			building.transform.parent = transform;
+			building.Initialize(this, buildingPrefab);
+		}
 	}
 
 }
