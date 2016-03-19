@@ -1,14 +1,17 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Building : MonoBehaviour {
 
-	State _state;
-	public State state {
+	public State state { get; private set; }
+	public Builder builder { get; private set; }
+	Building _prefab;
+	public Building prefab {
 		get {
-			return _state;
+			return _prefab == null ? this : _prefab;
 		}
-		set {
-			_state = value;
+		private set {
+			_prefab = value;
 		}
 	}
 
@@ -16,6 +19,25 @@ public class Building : MonoBehaviour {
 	new Renderer renderer;
 	new Collider collider;
 	static float angle;
+
+	static Dictionary<Building, int> _counts; //maps building prefabs to count of existing buildings
+	static Dictionary<Building, int> counts {
+		get {
+			if (_counts == null) {
+				_counts = new Dictionary<Building, int>();
+			}
+			return _counts;
+		}
+	}
+
+	public int count {
+		get {
+			return counts.ContainsKey(prefab) ? counts[prefab] : 0;
+		}
+		private set {
+			counts[prefab] = value;
+		}
+	}
 
 	void Awake() {
 		renderer = GetComponent<Renderer>();
@@ -27,8 +49,13 @@ public class Building : MonoBehaviour {
 
 	public enum State { Placing, Building, Active }
 
+	public void Initialize(Builder builder, Building prefab) {
+		this.builder = builder;
+		this.prefab = prefab;
+		state = State.Placing;
+	}
+
 	void Update() {
-		Builder builder = Builder.main;
 		switch (state) {
 			//building is being placed by player
 			case State.Placing:
@@ -54,6 +81,7 @@ public class Building : MonoBehaviour {
 				if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && renderer.enabled) {
 					state = State.Active;//Building;
 					builder.busy = false;
+					count ++;
 				}
 				if (Input.GetMouseButtonDown((int) MouseButton.Right)) {
 					Destroy(gameObject);
@@ -82,12 +110,10 @@ public class Building : MonoBehaviour {
 	}
 
 	public bool PositionUnobstucted(Vector3 position) {
-		Builder builder = Builder.main;
 		return !Physics.CheckSphere(position, builder.obstacleRadius, builder.obstacleLayers);
 	}
 
 	public bool PositionNearExistingBuilding(Vector3 position) {
-		Builder builder = Builder.main;
 		return Physics.CheckSphere(position, builder.maxBuildingDistance, builder.buildingLayers);
 	}
 

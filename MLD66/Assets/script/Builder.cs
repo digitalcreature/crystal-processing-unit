@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
 
 //singleton manager that handles building construction
 public class Builder : SingletonBehaviour<Builder> {
@@ -14,29 +16,14 @@ public class Builder : SingletonBehaviour<Builder> {
 	public Material invalidPlacingMaterial;
 	public Material inProgressMaterial;
 
-	bool _busy;
-	public bool busy {
-		get {
-			return _busy;
-		}
-		set {
-			if (_busy != value) {
-				Button[] buttons = FindObjectsOfType<Button>();
-				foreach (Button button in buttons) {
-					if (button.tag == "Build Button") {
-						button.interactable = !value;
-					}
-				}
-				_busy = value;
-			}
-		}
-	}
+	[HideInInspector]
+	public bool busy;
 
-	public void Build(Building buildingPrefab) {
+	public void StartPlacing(Building buildingPrefab) {
 		Building building = Instantiate(buildingPrefab);
 		building.name = buildingPrefab.name;
 		building.transform.parent = transform;
-		building.state = Building.State.Placing;
+		building.Initialize(this, buildingPrefab);
 	}
 
 	public bool PositionValid(Vector3 position) {
