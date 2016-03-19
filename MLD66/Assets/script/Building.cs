@@ -37,7 +37,7 @@ public class Building : MonoBehaviour {
 				collider.enabled = false;
 				RaycastHit hit;
 				Ray ray = CameraRig.main.camera.ScreenPointToRay(Input.mousePosition);
-				if (Physics.Raycast(ray, out hit, Mathf.Infinity, builder.validLayers)) {
+				if (Physics.Raycast(ray, out hit, Mathf.Infinity, builder.groundLayers)) {
 					renderer.enabled = true;
 					transform.position = hit.point;
 					transform.forward = hit.normal;
@@ -46,6 +46,7 @@ public class Building : MonoBehaviour {
 					transform.Rotate(0, 0, angle);
 				}
 				else {
+					//hide the building if the player isnt pointing at ground
 					renderer.enabled = false;
 				}
 				bool valid = PositionValid(transform.position);
@@ -77,7 +78,17 @@ public class Building : MonoBehaviour {
 	}
 
 	public virtual bool PositionValid(Vector3 position) {
-		return Builder.main.PositionValid(position);
+		return PositionUnobstucted(position) && PositionNearExistingBuilding(position);
+	}
+
+	public bool PositionUnobstucted(Vector3 position) {
+		Builder builder = Builder.main;
+		return !Physics.CheckSphere(position, builder.obstacleRadius, builder.obstacleLayers);
+	}
+
+	public bool PositionNearExistingBuilding(Vector3 position) {
+		Builder builder = Builder.main;
+		return Physics.CheckSphere(position, builder.maxBuildingDistance, builder.buildingLayers);
 	}
 
 	void SetChildrenActive(bool active) {

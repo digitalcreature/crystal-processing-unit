@@ -4,9 +4,11 @@ using UnityEngine.UI;
 //singleton manager that handles building construction
 public class Builder : SingletonBehaviour<Builder> {
 
-	public LayerMask validLayers;
-	public LayerMask invalidLayers;
-	public float minimumDistance = .25f;
+	public LayerMask groundLayers;				//stuff you can build on
+	public LayerMask obstacleLayers;				//stuff that blocks building placement
+	public float obstacleRadius = .25f;
+	public LayerMask buildingLayers;				//stuff that counts as buildings
+	public float maxBuildingDistance = .5f;	//maximum distance a new bulding can be from an old one
 	public float rotateSpeed = 60;
 	public Material validPlacingMaterial;
 	public Material invalidPlacingMaterial;
@@ -38,7 +40,8 @@ public class Builder : SingletonBehaviour<Builder> {
 	}
 
 	public bool PositionValid(Vector3 position) {
-		return !Physics.CheckSphere(position, minimumDistance, invalidLayers);
+		return !Physics.CheckSphere(position, obstacleRadius, obstacleLayers) &&
+				Physics.CheckSphere(position, maxBuildingDistance, buildingLayers);
 	}
 
 }
