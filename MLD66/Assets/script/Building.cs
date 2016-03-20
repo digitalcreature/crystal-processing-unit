@@ -64,57 +64,72 @@ public class Building : MonoBehaviour {
 		switch (state) {
 			//building is being placed by player
 			case State.Placing:
-				SetChildrenActive(false);
-				builder.busy = true;
-				collider.enabled = false;
-				RaycastHit hit;
-				Ray ray = CameraRig.main.camera.ScreenPointToRay(Input.mousePosition);
-				if (Physics.Raycast(ray, out hit, Mathf.Infinity, builder.groundLayers)) {
-					renderer.enabled = true;
-					transform.position = hit.point;
-					transform.forward = hit.normal;
-					angle += Input.GetAxis("Rotate Building") * Time.deltaTime * builder.rotateSpeed;
-					Mathf.Repeat(angle, 360);
-					transform.Rotate(0, 0, angle);
-				}
-				else {
-					//hide the building if the player isnt pointing at ground
-					renderer.enabled = false;
-				}
-				bool valid = PositionValid(transform.position);
-				renderer.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
-				if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && renderer.enabled) {
-					state = State.Constructing;
-					builder.busy = false;
-					buildSpeed = 1;
-					count ++;
-				}
-				if (Input.GetMouseButtonDown((int) MouseButton.Right)) {
-					Destroy(gameObject);
-					builder.busy = false;
-				}
+				UpdatePlacing();
 				break;
 			//building is constructing or deconstructing
 			case State.Constructing:
-				SetChildrenActive(false);
-				collider.enabled = true;
-				renderer.enabled = true;
-				renderer.material = builder.inProgressMaterial;
-				buildProgress += buildSpeed * Time.deltaTime / buildTime;
-				buildProgress = Mathf.Clamp01(buildProgress);
-				if (buildProgress == 1) {
-					buildSpeed = 0;
-					state = State.Active;
-				}
+				UpdateConstructing();
 				break;
 			//building is finished
 			case State.Active:
-				SetChildrenActive(true);
-				collider.enabled = true;
-				renderer.enabled = true;
-				renderer.material = material;
+				UpdateActive();
 				break;
 		}
+	}
+
+	void UpdatePlacing() {
+		gameObject.layer = builder.incompleteBuildingLayer;
+		SetChildrenActive(false);
+		builder.busy = true;
+		collider.enabled = false;
+		RaycastHit hit;
+		Ray ray = CameraRig.main.camera.ScreenPointToRay(Input.mousePosition);
+		if (Physics.Raycast(ray, out hit, Mathf.Infinity, builder.groundLayers)) {
+			renderer.enabled = true;
+			transform.position = hit.point;
+			transform.forward = hit.normal;
+			angle += Input.GetAxis("Rotate Building") * Time.deltaTime * builder.rotateSpeed;
+			Mathf.Repeat(angle, 360);
+			transform.Rotate(0, 0, angle);
+		}
+		else {
+			//hide the building if the player isnt pointing at ground
+			renderer.enabled = false;
+		}
+		bool valid = PositionValid(transform.position);
+		renderer.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
+		if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && renderer.enabled) {
+			state = State.Constructing;
+			builder.busy = false;
+			buildSpeed = 1;
+			count ++;
+		}
+		if (Input.GetMouseButtonDown((int) MouseButton.Right)) {
+			Destroy(gameObject);
+			builder.busy = false;
+		}
+	}
+
+	void UpdateConstructing() {
+		gameObject.layer = builder.incompleteBuildingLayer;
+		SetChildrenActive(false);
+		collider.enabled = true;
+		renderer.enabled = true;
+		renderer.material = builder.inProgressMaterial;
+		buildProgress += buildSpeed * Time.deltaTime / buildTime;
+		buildProgress = Mathf.Clamp01(buildProgress);
+		if (buildProgress == 1) {
+			buildSpeed = 0;
+			state = State.Active;
+		}
+	}
+
+	void UpdateActive() {
+		gameObject.layer = builder.buildingLayer;
+		SetChildrenActive(true);
+		collider.enabled = true;
+		renderer.enabled = true;
+		renderer.material = material;
 	}
 
 	public virtual bool PositionValid(Vector3 position) {

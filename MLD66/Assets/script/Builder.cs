@@ -6,6 +6,10 @@ using System.Collections.Generic;
 //singleton manager that handles building construction
 public class Builder : SingletonBehaviour<Builder> {
 
+	[Layer]
+	public int buildingLayer;
+	[Layer]
+	public int incompleteBuildingLayer;
 	public LayerMask groundLayers;				//stuff you can build on
 	public LayerMask obstacleLayers;				//stuff that blocks building placement
 	public float obstacleRadius = .25f;
