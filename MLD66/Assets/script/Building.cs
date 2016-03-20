@@ -22,8 +22,21 @@ public class Building : MonoBehaviour {
 	new Renderer renderer;
 	new Collider collider;
 	static float angle;
-	float buildProgress = 0;
+	public float buildProgress { get; private set; }
 	float buildSpeed = 0;
+	BuildingProgressIndicator _indicator;
+	BuildingProgressIndicator indicator {
+		get {
+			if (_indicator == null) {
+				_indicator = Instantiate(builder.indicatorPrefab) as BuildingProgressIndicator;
+				_indicator.name = builder.indicatorPrefab.name;
+				_indicator.transform.SetParent(transform);
+				_indicator.building = this;
+				_indicator.transform.localPosition = Vector3.zero;
+			}
+			return _indicator;
+		}
+	}
 
 	static Dictionary<Building, int> _counts; //maps building prefabs to count of existing buildings
 	static Dictionary<Building, int> counts {
@@ -80,6 +93,7 @@ public class Building : MonoBehaviour {
 	void UpdatePlacing() {
 		gameObject.layer = builder.incompleteBuildingLayer;
 		SetChildrenActive(false);
+		indicator.gameObject.SetActive(false);
 		builder.busy = true;
 		collider.enabled = false;
 		RaycastHit hit;
@@ -113,6 +127,7 @@ public class Building : MonoBehaviour {
 	void UpdateConstructing() {
 		gameObject.layer = builder.incompleteBuildingLayer;
 		SetChildrenActive(false);
+		indicator.gameObject.SetActive(true);
 		collider.enabled = true;
 		renderer.enabled = true;
 		renderer.material = builder.inProgressMaterial;
@@ -127,6 +142,7 @@ public class Building : MonoBehaviour {
 	void UpdateActive() {
 		gameObject.layer = builder.buildingLayer;
 		SetChildrenActive(true);
+		indicator.gameObject.SetActive(false);
 		collider.enabled = true;
 		renderer.enabled = true;
 		renderer.material = material;
@@ -150,7 +166,10 @@ public class Building : MonoBehaviour {
 
 	void SetChildrenActive(bool active) {
 		for (int c = 0; c < transform.childCount; c ++) {
-			transform.GetChild(c).gameObject.SetActive(active);
+			Transform child = transform.GetChild(c);
+			if (child != indicator.transform) {
+				child.gameObject.SetActive(active);
+			}
 		}
 	}
 }
