@@ -30,9 +30,9 @@ public class Building : MonoBehaviour {
 			if (_indicator == null) {
 				_indicator = Instantiate(builder.indicatorPrefab) as BuildingProgressIndicator;
 				_indicator.name = builder.indicatorPrefab.name;
-				_indicator.transform.SetParent(transform);
 				_indicator.building = this;
-				_indicator.transform.localPosition = Vector3.zero;
+				_indicator.transform.SetParent(builder.transform, false);
+				_indicator.transform.position = transform.position;
 			}
 			return _indicator;
 		}

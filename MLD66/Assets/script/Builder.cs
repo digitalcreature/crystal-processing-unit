@@ -22,11 +22,21 @@ public class Builder : SingletonBehaviour<Builder> {
 	[HideInInspector]
 	public bool busy;
 
+	Transform _buildingsParent;
+	public Transform buildingsParent {
+		get {
+			if (_buildingsParent == null) {
+				_buildingsParent = new GameObject("buildings").transform;
+				_buildingsParent.parent = transform;
+			}
+			return _buildingsParent;
+		}
+	}
 	public void StartPlacing(Building buildingPrefab) {
 		if (buildingPrefab.CanBuild()) {
 			Building building = Instantiate(buildingPrefab);
 			building.name = buildingPrefab.name;
-			building.transform.parent = transform;
+			building.transform.parent = buildingsParent;
 			building.Initialize(this, buildingPrefab);
 		}
 	}

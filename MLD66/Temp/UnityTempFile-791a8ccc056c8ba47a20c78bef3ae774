@@ -2,10 +2,10 @@
 -target:library
 -nowarn:0169
 -out:Temp/Assembly-CSharp.dll
--r:/opt/Unity/Editor/Data/Managed/UnityEngine.dll
--r:/opt/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll
--r:/opt/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll
--r:/opt/Unity/Editor/Data/Managed/UnityEditor.dll
+-r:"C:/Program Files/Unity/Editor/Data/Managed/UnityEngine.dll"
+-r:"C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll"
+-r:"C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll"
+-r:"C:/Program Files/Unity/Editor/Data/Managed/UnityEditor.dll"
 -define:UNITY_5_3_OR_NEWER
 -define:UNITY_5_3_4
 -define:UNITY_5_3
@@ -76,7 +76,7 @@
 -define:UNITY_ASSERTIONS
 -define:UNITY_EDITOR
 -define:UNITY_EDITOR_64
--define:UNITY_EDITOR_LINUX
+-define:UNITY_EDITOR_WIN
 Assets/script/AsteroidChunk.cs
 Assets/script/AsteroidGenerator.cs
 Assets/script/Builder.cs
@@ -90,5 +90,5 @@ Assets/script/MineralNode.cs
 Assets/script/RandomColorizer.cs
 Assets/script/SingletonBehaviour.cs
 Assets/script/Starbox.cs
--r:/opt/Unity/Editor/Data/Mono/lib/mono/unity/System.Runtime.Serialization.dll
--r:/opt/Unity/Editor/Data/Mono/lib/mono/unity/System.Xml.Linq.dll
+-r:"C:\Program Files\Unity\Editor\Data\Mono\lib\mono\unity\System.Runtime.Serialization.dll"
+-r:"C:\Program Files\Unity\Editor\Data\Mono\lib\mono\unity\System.Xml.Linq.dll"
