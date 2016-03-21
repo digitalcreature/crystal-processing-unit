@@ -82,7 +82,7 @@ public class Building : MonoBehaviour {
 		connectionPoint = connectionPoint == null ? transform : connectionPoint;
 		renderer = GetComponent<Renderer>();
 		if (renderer != null) {
-			material = renderer.material;
+			material = renderer.sharedMaterial;
 		}
 		collider = GetComponent<Collider>();
 		state = State.Placing;
@@ -151,6 +151,7 @@ public class Building : MonoBehaviour {
 		indicator.gameObject.SetActive(true);
 		collider.enabled = true;
 		renderer.enabled = true;
+		renderer.material = builder.inProgressMaterial;
 		if (underCursor) {
 			switch (builder.status) {
 				case Builder.Status.Canceling:
@@ -163,9 +164,6 @@ public class Building : MonoBehaviour {
 					}
 					break;
 			}
-		}
-		else {
-			renderer.material = builder.inProgressMaterial;
 		}
 		buildProgress += buildSpeed * Time.deltaTime / buildTime;
 		buildProgress = Mathf.Clamp01(buildProgress);
@@ -198,6 +196,7 @@ public class Building : MonoBehaviour {
 		indicator.gameObject.SetActive(false);
 		collider.enabled = true;
 		renderer.enabled = true;
+		renderer.material = material;
 		if (underCursor) {
 			switch (builder.status) {
 				case Builder.Status.Demolishing:
@@ -210,9 +209,6 @@ public class Building : MonoBehaviour {
 					}
 					break;
 			}
-		}
-		else {
-			renderer.material = material;
 		}
 	}
 
