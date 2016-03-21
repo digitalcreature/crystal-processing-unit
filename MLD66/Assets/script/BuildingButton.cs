@@ -1,22 +1,20 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BuildingButton : MonoBehaviour {
+public class BuildingButton : BuilderButton {
 
 	public Building buildingPrefab;
-	Button button;
-	Text text;
 
-	void Awake() {
-		button = GetComponent<Button>();
-		text = GetComponentInChildren<Text>();
+	protected override void Awake() {
+		base.Awake();
 		button.onClick.AddListener(StartPlacing);
 	}
 
-	void Update() {
+	protected override void Update() {
+		base.Update();
 		string maxCount = buildingPrefab.maxCount < 0 ? "infinity" : buildingPrefab.maxCount.ToString();
 		text.text = string.Format("{0}\n({1}/{2})", buildingPrefab.name, buildingPrefab.count, maxCount);
-		button.interactable = !Builder.main.busy && buildingPrefab.CanBuild();
+		button.interactable = !Builder.main.isBusy && buildingPrefab.CanBuild();
 	}
 
 	void StartPlacing() {

@@ -11,16 +11,20 @@ public class Builder : SingletonBehaviour<Builder> {
 	public LayerMask groundLayers;				//stuff you can build on
 	public LayerMask obstacleLayers;				//stuff that blocks building placement
 	public float obstacleRadius = .25f;
-	public LayerMask buildingLayers;				//stuff that counts as buildings
+	public LayerMask buildingLayers;				//stuff that counts as completed buildings
 	public float maxBuildingDistance = .5f;	//maximum distance a new bulding can be from an old one
 	public float rotateSpeed = 60;
 	public Material validPlacingMaterial;
 	public Material invalidPlacingMaterial;
 	public Material inProgressMaterial;
+	public Material demolishSelectionMaterial;
+	public Material cancelSelectionMaterial;
 	public BuildingProgressIndicator indicatorPrefab;
+	public Connector connectorPrefab;
 
 	[HideInInspector]
-	public bool busy;
+	public Status status;
+	public bool isBusy { get { return status != Status.Idle; } }
 
 	Transform _buildingsParent;
 	public Transform buildingsParent {
@@ -32,13 +36,31 @@ public class Builder : SingletonBehaviour<Builder> {
 			return _buildingsParent;
 		}
 	}
+
 	public void StartPlacing(Building buildingPrefab) {
 		if (buildingPrefab.CanBuild()) {
 			Building building = Instantiate(buildingPrefab);
 			building.name = buildingPrefab.name;
 			building.transform.parent = buildingsParent;
 			building.Initialize(this, buildingPrefab);
+			status = Status.Placing;
 		}
 	}
+
+	void Update() {
+		if (Input.GetMouseButtonDown((int) MouseButton.Right)) {
+			status = Status.Idle;
+		}
+	}
+
+	public void StartDemolishing() {
+		status = Status.Demolishing;
+	}
+
+	public void StartCanceling() {
+		status = Status.Canceling;
+	}
+
+	public enum Status { Idle, Placing, Demolishing, Canceling }
 
 }
