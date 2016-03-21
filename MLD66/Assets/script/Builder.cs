@@ -37,17 +37,25 @@ public class Builder : SingletonBehaviour<Builder> {
 		}
 	}
 
+	Building placingBuilding;
+
 	public void StartPlacing(Building buildingPrefab) {
 		if (buildingPrefab.CanBuild()) {
-			Building building = Instantiate(buildingPrefab);
-			building.name = buildingPrefab.name;
-			building.transform.parent = buildingsParent;
-			building.Initialize(this, buildingPrefab);
+			if (placingBuilding != null) {
+				placingBuilding.CancelPlacing();
+			}
+			placingBuilding = Instantiate(buildingPrefab);
+			placingBuilding.name = buildingPrefab.name;
+			placingBuilding.transform.parent = buildingsParent;
+			placingBuilding.Initialize(this, buildingPrefab);
 			status = Status.Placing;
 		}
 	}
 
 	void Update() {
+		if (status != Status.Placing) {
+			placingBuilding = null;
+		}
 		if (Input.GetMouseButtonDown((int) MouseButton.Right)) {
 			status = Status.Idle;
 		}

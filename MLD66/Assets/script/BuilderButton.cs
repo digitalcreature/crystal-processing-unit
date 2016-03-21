@@ -3,16 +3,23 @@ using UnityEngine.UI;
 
 public class BuilderButton : MonoBehaviour {
 
+	public Text text;
+	public Text hotKeyText;
+	public KeyCode hotKey;
+
 	protected Button button;
-	protected Text text;
 
 	protected virtual void Awake() {
 		button = GetComponent<Button>();
-		text = GetComponentInChildren<Text>();
 	}
 
 	protected virtual void Update() {
-		button.interactable = !Builder.main.isBusy;
+		if (hotKeyText != null) {
+			hotKeyText.text = string.Format("[{0}]", hotKey.ToString());
+		}
+		if (Input.GetKeyDown(hotKey) && button.interactable) {
+			button.onClick.Invoke();
+		}
 	}
 
 }

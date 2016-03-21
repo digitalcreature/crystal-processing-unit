@@ -7,6 +7,7 @@ public class Building : MonoBehaviour {
 	public int maxCount = -1;
 	public float buildTime = 2;
 	public Transform connectionPoint;		//point that connectors connect to
+	public bool permanent = false;
 
 	public State state { get; private set; }
 	public Builder builder { get; private set; }
@@ -96,7 +97,7 @@ public class Building : MonoBehaviour {
 			case State.Placing:
 				UpdatePlacing();
 				break;
-			//building is constructing or deconstructing
+			//building is constructing or demolishing
 			case State.Constructing:
 				UpdateConstructing();
 				break;
@@ -108,10 +109,14 @@ public class Building : MonoBehaviour {
 	}
 
 	void UpdatePlacing() {
+		if (builder.status != Builder.Status.Placing) {
+			//if the builder isnt placing anymore, cancel placement
+			CancelPlacing();
+			return;
+		}
 		gameObject.layer = builder.incompleteBuildingLayer;
 		SetChildrenActive(false);
 		indicator.gameObject.SetActive(false);
-		// builder.status = Builder.Status.Placing;
 		collider.enabled = false;
 		RaycastHit hit;
 		Ray ray = CameraRig.main.camera.ScreenPointToRay(Input.mousePosition);
@@ -138,10 +143,6 @@ public class Building : MonoBehaviour {
 				//if user is holding left shift, start placing another copy of this building
 				builder.StartPlacing(prefab);
 			}
-		}
-		if (Input.GetMouseButtonDown((int) MouseButton.Right)) {
-			Destroy(gameObject);
-			builder.status = Builder.Status.Idle;
 		}
 	}
 
@@ -200,11 +201,13 @@ public class Building : MonoBehaviour {
 		if (underCursor) {
 			switch (builder.status) {
 				case Builder.Status.Demolishing:
-					renderer.material = builder.demolishSelectionMaterial;
-					if (Input.GetMouseButtonDown((int) MouseButton.Left)) {
-						StartDemolish();
-						if (!Input.GetButton("Multi Build")) {
-							builder.status = Builder.Status.Idle;
+					if (!permanent) {
+						renderer.material = builder.demolishSelectionMaterial;
+						if (Input.GetMouseButtonDown((int) MouseButton.Left)) {
+							StartDemolish();
+							if (!Input.GetButton("Multi Build")) {
+								builder.status = Builder.Status.Idle;
+							}
 						}
 					}
 					break;
@@ -237,10 +240,19 @@ public class Building : MonoBehaviour {
 		}
 	}
 
+	public void CancelPlacing() {
+		if (state == State.Placing) {
+			Destroy(gameObject);
+			Destroy(indicator.gameObject);
+		}
+	}
+
 	public void StartDemolish() {
-		Disconnect();
-		buildSpeed = -1;
-		state = State.Constructing;
+		if (!permanent) {
+			Disconnect();
+			buildSpeed = -1;
+			state = State.Constructing;
+		}
 	}
 
 	public void Disconnect() {

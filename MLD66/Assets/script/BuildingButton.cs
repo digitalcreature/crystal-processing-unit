@@ -11,10 +11,10 @@ public class BuildingButton : BuilderButton {
 	}
 
 	protected override void Update() {
+		button.interactable = buildingPrefab.CanBuild();// && !Builder.main.isBusy;
 		base.Update();
 		string maxCount = buildingPrefab.maxCount < 0 ? "infinity" : buildingPrefab.maxCount.ToString();
 		text.text = string.Format("{0}\n({1}/{2})", buildingPrefab.name, buildingPrefab.count, maxCount);
-		button.interactable = !Builder.main.isBusy && buildingPrefab.CanBuild();
 	}
 
 	void StartPlacing() {
