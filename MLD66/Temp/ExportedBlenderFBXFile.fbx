@@ -11,9 +11,9 @@ FBXHeaderExtension:  {
 		Year: 2016
 		Month: 03
 		Day: 21
-		Hour: 17
-		Minute: 51
-		Second: 52
+		Hour: 20
+		Minute: 25
+		Second: 40
 		Millisecond: 0
 	}
 	Creator: "FBX SDK/FBX Plugins build 20070228"
@@ -21,7 +21,7 @@ FBXHeaderExtension:  {
 		FlagPLE: 0
 	}
 }
-CreationTime: "2016-03-21 17:51:52:000"
+CreationTime: "2016-03-21 20:25:40:000"
 Creator: "Blender version 2.76 (sub 0)"
 
 ; Object definitions
@@ -952,7 +952,7 @@ Objects:  {
 			Name: "UVMap"
 			MappingInformationType: "ByPolygonVertex"
 			ReferenceInformationType: "IndexToDirect"
-			UV: 0.189941,0.539373,0.736235,0.504922,0.229314,0.495078
+			UV: 0.189941,0.539373,0.736235,0.504922,0.756563,0.507061
 			UVIndex: 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 			         1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 			         0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,

@@ -13,7 +13,7 @@ public class BuildingProgressIndicator : MonoBehaviour {
 
 	void Update() {
 		transform.rotation = CameraRig.main.transform.rotation;
-		transform.position = building.transform.position;
+		transform.position = building.center.position;
 		image.fillAmount = building.buildProgress;
 	}
 

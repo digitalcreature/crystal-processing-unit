@@ -6,12 +6,16 @@ public class RandomColorizer : MonoBehaviour {
 	public string colorName = "_Color";
 
 	void Awake() {
-		Renderer render = GetComponent<Renderer>();
-		if (render != null) {
-			Material mat = render.material;
-			if (mat != null) {
-				mat.SetColor(colorName, colors.Evaluate(Random.value));
+		if (enabled) {
+			Renderer render = GetComponent<Renderer>();
+			if (render != null) {
+				Material mat = render.material;
+				if (mat != null) {
+					mat.SetColor(colorName, colors.Evaluate(Random.value));
+				}
 			}
 		}
 	}
+
+	void Update() {}
 }

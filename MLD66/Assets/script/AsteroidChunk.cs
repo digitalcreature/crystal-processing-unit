@@ -19,7 +19,7 @@ public class AsteroidChunk : MonoBehaviour {
 
 	//initialize the chunk
 	public void Initialize(AsteroidGenerator generator, AsteroidChunk parent) {
-//assign fields
+		//assign fields
 		this.generator = generator;
 		this.parent = parent;
 		float size = this.size = sizeCurve.Evaluate(Random.value);

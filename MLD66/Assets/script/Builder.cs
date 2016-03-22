@@ -14,6 +14,8 @@ public class Builder : SingletonBehaviour<Builder> {
 	public LayerMask buildingLayers;				//stuff that counts as completed buildings
 	public float maxBuildingDistance = .5f;	//maximum distance a new bulding can be from an old one
 	public float rotateSpeed = 60;
+	public Material activeMaterial;
+	public Material inactiveMaterial;
 	public Material validPlacingMaterial;
 	public Material invalidPlacingMaterial;
 	public Material inProgressMaterial;

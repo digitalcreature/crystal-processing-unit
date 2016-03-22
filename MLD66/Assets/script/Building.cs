@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using System.Collections.Generic;
 
 //a building
@@ -6,8 +7,10 @@ public class Building : MonoBehaviour {
 
 	public int maxCount = -1;
 	public float buildTime = 2;
+	public Transform center;
 	public Transform connectionPoint;		//point that connectors connect to
 	public bool permanent = false;
+	public BooleanEvent isActiveEvent;
 
 	public State state { get; private set; }
 	public Builder builder { get; private set; }
@@ -21,9 +24,8 @@ public class Building : MonoBehaviour {
 		}
 	}
 
-	Material material;
 	new Renderer renderer;
-	new Collider collider;
+	new BoxCollider collider;
 	static float angle;
 	public float buildProgress { get; private set; }
 	float buildSpeed = 0;
@@ -39,6 +41,18 @@ public class Building : MonoBehaviour {
 			}
 			return _indicator;
 		}
+	}
+
+	static HashSet<Building> _grid;
+	public static HashSet<Building> grid {
+		get {
+			if (_grid == null) _grid = new HashSet<Building>();
+			return _grid;
+		}
+	}
+
+	public bool isActive {
+		get { return grid.Contains(this); }
 	}
 
 	static Dictionary<Building, int> _counts; //maps building prefabs to count of existing buildings
@@ -71,24 +85,21 @@ public class Building : MonoBehaviour {
 		}
 	}
 
-	public List<Building> neighbors { get; private set; }
-	public List<Connector> connectors { get; private set; }
+	public HashSet<Building> neighbors { get; private set; }
+	public HashSet<Connector> connectors { get; private set; }
 
 	public enum State { Placing, Constructing, Active }
 
 	public void Initialize(Builder builder, Building prefab) {
 		this.builder = builder;
 		this.prefab = prefab;
-		//make sure we have a valid transform for Connectors to use; if none is given use our own
-		connectionPoint = connectionPoint == null ? transform : connectionPoint;
+		center = (center == null) ? (transform) : (center);
+		connectionPoint = (connectionPoint == null) ? (center) : (connectionPoint);
 		renderer = GetComponent<Renderer>();
-		if (renderer != null) {
-			material = renderer.sharedMaterial;
-		}
-		collider = GetComponent<Collider>();
+		collider = GetComponent<BoxCollider>();
 		state = State.Placing;
-		neighbors = new List<Building>();
-		connectors = new List<Connector>();
+		neighbors = new HashSet<Building>();
+		connectors = new HashSet<Connector>();
 	}
 
 	void Update() {
@@ -132,7 +143,7 @@ public class Building : MonoBehaviour {
 			//hide the building if the player isnt pointing at ground
 			renderer.enabled = false;
 		}
-		bool valid = PositionValid(transform.position);
+		bool valid = PositionValid(center.position);
 		renderer.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
 		if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && renderer.enabled) {
 			state = State.Constructing;
@@ -170,20 +181,7 @@ public class Building : MonoBehaviour {
 		buildProgress = Mathf.Clamp01(buildProgress);
 		if (buildSpeed > 0 && buildProgress == 1) {
 			buildSpeed = 0;
-			Collider[] cols = Physics.OverlapSphere(transform.position, builder.maxBuildingDistance, builder.buildingLayers);
-			foreach (Collider col in cols) {
-				Building building = col.GetComponent<Building>();
-				if (building != null) {
-					Connector connector = Instantiate(builder.connectorPrefab) as Connector;
-					connector.name = builder.connectorPrefab.name;
-					connector.transform.parent = builder.transform;
-					connector.Initialize(this, building);
-					neighbors.Add(building);
-					building.neighbors.Add(this);
-					connectors.Add(connector);
-					building.connectors.Add(connector);
-				}
-			}
+			Connect();
 			state = State.Active;
 		}
 		if (buildSpeed < 0 && buildProgress == 0) {
@@ -192,12 +190,13 @@ public class Building : MonoBehaviour {
 	}
 
 	void UpdateActive() {
+		isActiveEvent.Invoke(isActive);
 		gameObject.layer = builder.buildingLayer;
 		SetChildrenActive(true);
 		indicator.gameObject.SetActive(false);
 		collider.enabled = true;
 		renderer.enabled = true;
-		renderer.material = material;
+		renderer.material = isActive ? builder.activeMaterial : builder.inactiveMaterial;
 		if (underCursor) {
 			switch (builder.status) {
 				case Builder.Status.Demolishing:
@@ -234,9 +233,7 @@ public class Building : MonoBehaviour {
 	void SetChildrenActive(bool active) {
 		for (int c = 0; c < transform.childCount; c ++) {
 			Transform child = transform.GetChild(c);
-			if (child != indicator.transform) {
-				child.gameObject.SetActive(active);
-			}
+			child.gameObject.SetActive(active);
 		}
 	}
 
@@ -255,16 +252,38 @@ public class Building : MonoBehaviour {
 		}
 	}
 
+	//forge new connections with neighbors, if available
+	public void Connect() {
+		Collider[] cols = Physics.OverlapSphere(center.position, builder.maxBuildingDistance, builder.buildingLayers);
+		foreach (Collider col in cols) {
+			Building building = col.GetComponent<Building>();
+			if (building != null && !neighbors.Contains(building)) {
+				Connector connector = Instantiate(builder.connectorPrefab) as Connector;
+				connector.name = builder.connectorPrefab.name;
+				connector.transform.parent = builder.transform;
+				connector.Initialize(this, building);
+				neighbors.Add(building);
+				building.neighbors.Add(this);
+				connectors.Add(connector);
+				building.connectors.Add(connector);
+			}
+		}
+		UpdateGrid();
+	}
+
+	//remove all connections to neighbors
 	public void Disconnect() {
 		foreach (Building neighbor in neighbors) {
 			neighbor.neighbors.Remove(this);
 		}
+		neighbors.Clear();
 		foreach (Connector connector in connectors) {
 			if (connector.a == this) connector.b.connectors.Remove(connector);
 			if (connector.b == this) connector.a.connectors.Remove(connector);
 			Destroy(connector.gameObject);
 		}
 		connectors.Clear();
+		UpdateGrid();
 	}
 
 	public void Demolish() {
@@ -274,4 +293,28 @@ public class Building : MonoBehaviour {
 		Destroy(gameObject);
 	}
 
+	//update the grid of buildings using and iterative flood-fill
+	//called whenever a building is connected or disconnected
+	public void UpdateGrid() {
+		grid.Clear();
+		MainBuilding mainBuilding = FindObjectOfType<MainBuilding>();
+		if (mainBuilding != null) {
+			Queue<Building> queue = new Queue<Building>();
+			queue.Enqueue(mainBuilding);
+			grid.Add(mainBuilding);
+			while (queue.Count > 0) {
+				Building building = queue.Dequeue();
+				foreach (Building neighbor in building.neighbors) {
+					if (!grid.Contains(neighbor)) {
+						grid.Add(neighbor);
+						queue.Enqueue(neighbor);
+					}
+				}
+			}
+		}
+	}
+
 }
+
+[System.Serializable]
+public class BooleanEvent : UnityEvent<bool> {}
