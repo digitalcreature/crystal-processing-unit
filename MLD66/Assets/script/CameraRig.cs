@@ -4,7 +4,8 @@ public class CameraRig : SingletonBehaviour<CameraRig> {
 
 	public float sensitivity = 5f;
 	public MouseButton orbitButton = MouseButton.Right;
-	public float zoomMin = 3;
+	public LayerMask obstacleMask;
+	public float zoomMinOffset = 1;
 	public float zoomMax = 15;
 	public float zoomSensitivity = 1;
 	public float zoomSmoothing = 10;
@@ -26,10 +27,19 @@ public class CameraRig : SingletonBehaviour<CameraRig> {
 		}
 		float roll = Input.GetAxis("Roll Camera") * rollSpeed * Time.deltaTime;
 		transform.Rotate(0, 0, roll);
+		float zoomMin;
+		RaycastHit hit;
+		if (Physics.Raycast(transform.position - transform.forward * zoomMax, transform.forward, out hit, zoomMax, obstacleMask)) {
+			zoomMin = zoomMax - hit.distance + zoomMinOffset;
+		}
+		else {
+			zoomMin = 0;
+		}
 		zoom -= Input.mouseScrollDelta.y * zoomSensitivity;
 		zoom = Mathf.Clamp(zoom, zoomMin, zoomMax);
 		Vector3 camPos = camera.transform.localPosition;
 		camPos.z = Mathf.Lerp(camPos.z, - zoom, Time.deltaTime * zoomSmoothing);
+		camPos.z = -Mathf.Clamp(-camPos.z, zoomMin, zoomMax);
 		camera.transform.localPosition = camPos;
 	}
 

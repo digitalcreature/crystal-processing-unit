@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 14d87882c22913d48967db2330bb2255
-timeCreated: 1458603206
+timeCreated: 1458695201
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -60,34 +60,57 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 24
-        height: 24
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
+      outline:
+      - - {x: -14, y: 16}
+        - {x: -16, y: 11}
+        - {x: -16, y: -14}
+        - {x: -12, y: -16}
+        - {x: 15, y: -16}
+        - {x: 16, y: -13}
+        - {x: 16, y: 14}
+        - {x: 10, y: 16}
     - name: builder_cursors_demolish
       rect:
         serializedVersion: 2
-        x: 24
+        x: 32
         y: 0
-        width: 24
-        height: 24
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
+      outline:
+      - - {x: -15, y: 11}
+        - {x: -16, y: 10}
+        - {x: -16, y: -9}
+        - {x: -12, y: -11}
+        - {x: 12, y: -11}
+        - {x: 16, y: -9}
+        - {x: 16, y: 11}
     - name: builder_cursors_cancel
       rect:
         serializedVersion: 2
-        x: 48
+        x: 64
         y: 0
-        width: 24
-        height: 24
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
+      outline:
+      - - {x: -12, y: 16}
+        - {x: -16, y: 13}
+        - {x: -16, y: -12}
+        - {x: -12, y: -16}
+        - {x: 12, y: -16}
+        - {x: 16, y: -13}
+        - {x: 16, y: 12}
+        - {x: 13, y: 16}
     outline: []
   spritePackingTag: 
   userData: 

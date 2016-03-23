@@ -25,7 +25,7 @@ public class Building : MonoBehaviour {
 	}
 
 	new Renderer renderer;
-	new BoxCollider collider;
+	new Collider collider;
 	static float angle;
 	public float buildProgress { get; private set; }
 	float buildSpeed = 0;
@@ -96,7 +96,7 @@ public class Building : MonoBehaviour {
 		center = (center == null) ? (transform) : (center);
 		connectionPoint = (connectionPoint == null) ? (center) : (connectionPoint);
 		renderer = GetComponent<Renderer>();
-		collider = GetComponent<BoxCollider>();
+		collider = GetComponent<Collider>();
 		state = State.Placing;
 		neighbors = new HashSet<Building>();
 		connectors = new HashSet<Connector>();
