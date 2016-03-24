@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
 using System.Collections.Generic;
 
 //a building
@@ -10,7 +9,7 @@ public class Building : MonoBehaviour {
 	public Transform center;
 	public Transform connectionPoint;		//point that connectors connect to
 	public bool permanent = false;
-	public BooleanEvent isActiveEvent;
+	public string structureRenderersTag = "Building Structure";
 
 	public State state { get; private set; }
 	public Builder builder { get; private set; }
@@ -24,7 +23,7 @@ public class Building : MonoBehaviour {
 		}
 	}
 
-	new Renderer renderer;
+	RendererGroup structureRenderers;
 	new Collider collider;
 	static float angle;
 	public float buildProgress { get; private set; }
@@ -43,15 +42,12 @@ public class Building : MonoBehaviour {
 		}
 	}
 
-	static HashSet<Building> _grid;
-	public static HashSet<Building> grid {
-		get {
-			if (_grid == null) _grid = new HashSet<Building>();
-			return _grid;
-		}
-	}
+	public HashSet<BuildingComponent> components { get; private set; }
 
-	public bool isActive {
+	static HashSet<Building> _grid;
+	public static HashSet<Building> grid { get { if (_grid == null) _grid = new HashSet<Building>(); return _grid; } }
+
+	public bool isConnected {
 		get { return grid.Contains(this); }
 	}
 
@@ -95,11 +91,15 @@ public class Building : MonoBehaviour {
 		this.prefab = prefab;
 		center = (center == null) ? (transform) : (center);
 		connectionPoint = (connectionPoint == null) ? (center) : (connectionPoint);
-		renderer = GetComponent<Renderer>();
+		structureRenderers = new RendererGroup(this, structureRenderersTag);
 		collider = GetComponent<Collider>();
 		state = State.Placing;
 		neighbors = new HashSet<Building>();
 		connectors = new HashSet<Connector>();
+		components = new HashSet<BuildingComponent>();
+		foreach (BuildingComponent component in GetComponentsInChildren<BuildingComponent>()) {
+			components.Add(component);
+		}
 	}
 
 	void Update() {
@@ -132,7 +132,7 @@ public class Building : MonoBehaviour {
 		RaycastHit hit;
 		Ray ray = CameraRig.main.camera.ScreenPointToRay(Input.mousePosition);
 		if (Physics.Raycast(ray, out hit, Mathf.Infinity, builder.groundLayers)) {
-			renderer.enabled = true;
+			structureRenderers.enabled = true;
 			transform.position = hit.point;
 			transform.forward = hit.normal;
 			angle += Input.GetAxis("Rotate Building") * Time.deltaTime * builder.rotateSpeed;
@@ -141,11 +141,11 @@ public class Building : MonoBehaviour {
 		}
 		else {
 			//hide the building if the player isnt pointing at ground
-			renderer.enabled = false;
+			structureRenderers.enabled = false;
 		}
 		bool valid = PositionValid(center.position);
-		renderer.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
-		if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && renderer.enabled) {
+		structureRenderers.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
+		if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && structureRenderers.enabled) {
 			state = State.Constructing;
 			builder.status = Builder.Status.Idle;
 			buildSpeed = 1;
@@ -162,12 +162,12 @@ public class Building : MonoBehaviour {
 		SetChildrenActive(false);
 		indicator.gameObject.SetActive(true);
 		collider.enabled = true;
-		renderer.enabled = true;
-		renderer.material = builder.inProgressMaterial;
+		structureRenderers.enabled = true;
+		structureRenderers.material = builder.inProgressMaterial;
 		if (underCursor) {
 			switch (builder.status) {
 				case Builder.Status.Canceling:
-					renderer.material = builder.cancelSelectionMaterial;
+					structureRenderers.material = builder.cancelSelectionMaterial;
 					if (Input.GetMouseButtonDown((int) MouseButton.Left)) {
 						buildSpeed *= -1;
 						if (!Input.GetButton("Multi Build")) {
@@ -190,18 +190,17 @@ public class Building : MonoBehaviour {
 	}
 
 	void UpdateActive() {
-		isActiveEvent.Invoke(isActive);
 		gameObject.layer = builder.buildingLayer;
 		SetChildrenActive(true);
 		indicator.gameObject.SetActive(false);
 		collider.enabled = true;
-		renderer.enabled = true;
-		renderer.material = isActive ? builder.activeMaterial : builder.inactiveMaterial;
+		structureRenderers.enabled = true;
+		structureRenderers.material = isConnected ? builder.connectedMaterial : builder.disconnectedMaterial;
 		if (underCursor) {
 			switch (builder.status) {
 				case Builder.Status.Demolishing:
 					if (!permanent) {
-						renderer.material = builder.demolishSelectionMaterial;
+						structureRenderers.material = builder.demolishSelectionMaterial;
 						if (Input.GetMouseButtonDown((int) MouseButton.Left)) {
 							StartDemolish();
 							if (!Input.GetButton("Multi Build")) {
@@ -315,6 +314,3 @@ public class Building : MonoBehaviour {
 	}
 
 }
-
-[System.Serializable]
-public class BooleanEvent : UnityEvent<bool> {}

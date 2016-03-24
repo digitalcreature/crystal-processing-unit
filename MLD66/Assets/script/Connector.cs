@@ -3,15 +3,17 @@ using UnityEngine;
 //graphical connector between buildings
 public class Connector : MonoBehaviour {
 
+	public string structureRenderersTag = "Building Structure";
+
 	public Building a { get; private set; }
 	public Building b { get; private set; }
 
-	new Renderer renderer;
+	RendererGroup structureRenderers;
 
 	public void Initialize(Building a, Building b) {
 		this.a = a;
 		this.b = b;
-		renderer = GetComponent<Renderer>();
+		structureRenderers = new RendererGroup(this, structureRenderersTag);
 		Transform acp = a.connectionPoint;
 		Transform bcp = b.connectionPoint;
 		transform.position = (acp.position + bcp.position) / 2;
@@ -23,9 +25,7 @@ public class Connector : MonoBehaviour {
 	}
 
 	void Update() {
-		if (renderer != null) {
-			renderer.material = a.isActive && b.isActive ? Builder.main.activeMaterial : Builder.main.inactiveMaterial;
-		}
+		structureRenderers.material = a.isConnected || b.isConnected ? Builder.main.connectedMaterial : Builder.main.disconnectedMaterial;
 	}
 
 }

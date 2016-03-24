@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Globalization;
 
 public class BuilderButton : MonoBehaviour {
 
 	public Text text;
 	public Text hotKeyText;
-	public KeyCode hotKey;
+	public string hotKey;
 
 	protected Button button;
 
@@ -15,9 +16,9 @@ public class BuilderButton : MonoBehaviour {
 
 	protected virtual void Update() {
 		if (hotKeyText != null) {
-			hotKeyText.text = string.Format("[{0}]", hotKey.ToString());
+			hotKeyText.text = string.Format("[{0}]", hotKey.ToUpper());
 		}
-		if (Input.GetKeyDown(hotKey) && button.interactable) {
+		if (Input.GetKeyDown(hotKey.ToLower()) && button.interactable) {
 			button.onClick.Invoke();
 		}
 	}
