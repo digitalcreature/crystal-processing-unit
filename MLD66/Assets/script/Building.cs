@@ -46,6 +46,16 @@ public class Building : MonoBehaviour {
 
 	public HashSet<BuildingModule> modules { get; private set; }
 
+	bool modulesActive {
+		set {
+			foreach (BuildingModule module in modules) {
+				if (module.gameObject != this.gameObject && module.gameObject.activeSelf != value) {
+					module.gameObject.SetActive(value);
+				}
+			}
+		}
+	}
+
 	static HashSet<Building> _grid;
 	public static HashSet<Building> grid { get { if (_grid == null) _grid = new HashSet<Building>(); return _grid; } }
 
@@ -129,6 +139,7 @@ public class Building : MonoBehaviour {
 			CancelPlacing();
 			return;
 		}
+		modulesActive = false;
 		gameObject.layer = builder.incompleteBuildingLayer;
 		indicator.gameObject.SetActive(false);
 		collider.enabled = false;
@@ -146,7 +157,7 @@ public class Building : MonoBehaviour {
 			//hide the building if the player isnt pointing at ground
 			structureRenderers.enabled = false;
 		}
-		bool valid = PositionValid(center.position);
+		bool valid = PlacingValid();
 		structureRenderers.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
 		if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && structureRenderers.enabled) {
 			state = State.Constructing;
@@ -167,6 +178,7 @@ public class Building : MonoBehaviour {
 		collider.enabled = true;
 		structureRenderers.enabled = true;
 		structureRenderers.material = builder.inProgressMaterial;
+		modulesActive = false;
 		if (underCursor) {
 			switch (builder.status) {
 				case Builder.Status.Canceling:
@@ -198,6 +210,7 @@ public class Building : MonoBehaviour {
 		collider.enabled = true;
 		structureRenderers.enabled = true;
 		structureRenderers.material = isConnected ? builder.connectedMaterial : builder.disconnectedMaterial;
+		modulesActive = true;
 		if (underCursor) {
 			switch (builder.status) {
 				case Builder.Status.Demolishing:
@@ -215,17 +228,15 @@ public class Building : MonoBehaviour {
 		}
 	}
 
-	public virtual bool PositionValid(Vector3 position) {
-		//the main building doesn't need to placed near another building
-		return PositionUnobstucted(position) && PositionNearExistingBuilding(position) || isMainBuilding;
-	}
-
-	public bool PositionUnobstucted(Vector3 position) {
-		return !Physics.CheckSphere(position, builder.obstacleRadius, builder.obstacleLayers);
-	}
-
-	public bool PositionNearExistingBuilding(Vector3 position) {
-		return Physics.CheckSphere(position, builder.maxBuildingDistance, builder.buildingLayers);
+	public bool PlacingValid() {
+		foreach (BuildingModule module in modules) {
+			if (!module.PlacingValid()) {
+				return false;
+			}
+		}
+		return !Physics.CheckSphere(transform.position, builder.obstacleRadius, builder.obstacleLayers) 
+			//the main building doesn't need to placed near another building, other buildings do
+			&& (isMainBuilding || Physics.CheckSphere(center.position, builder.maxBuildingDistance, builder.buildingLayers));
 	}
 
 	public virtual bool CanBuild() {
@@ -249,8 +260,7 @@ public class Building : MonoBehaviour {
 
 	//forge new connections with neighbors, if available
 	public void Connect() {
-		Collider[] cols = Physics.OverlapSphere(center.position, builder.maxBuildingDistance, builder.buildingLayers);
-		foreach (Collider col in cols) {
+		foreach (Collider col in Physics.OverlapSphere(center.position, builder.maxBuildingDistance, builder.buildingLayers)) {
 			Building building = col.GetComponent<Building>();
 			if (building != null && !neighbors.Contains(building)) {
 				Connector connector = Instantiate(builder.connectorPrefab) as Connector;

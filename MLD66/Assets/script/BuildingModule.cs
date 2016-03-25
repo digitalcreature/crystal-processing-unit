@@ -8,4 +8,8 @@ public abstract class BuildingModule : MonoBehaviour {
 		this.building = building;
 	}
 
+	public virtual bool PlacingValid() {
+		return true;
+	}
+
 }
