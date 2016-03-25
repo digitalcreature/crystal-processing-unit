@@ -25,7 +25,13 @@ public class Connector : MonoBehaviour {
 	}
 
 	void Update() {
-		structureRenderers.material = a.isConnected || b.isConnected ? Builder.main.connectedMaterial : Builder.main.disconnectedMaterial;
+		Builder builder = Builder.main;
+		if (a.state == Building.State.Constructing || b.state == Building.State.Constructing) {
+			structureRenderers.material = builder.inProgressMaterial;
+		}
+		else {
+			structureRenderers.material = a.isConnected || b.isConnected ? Builder.main.connectedMaterial : Builder.main.disconnectedMaterial;
+		}
 	}
 
 }

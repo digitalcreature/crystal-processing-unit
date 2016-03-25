@@ -4,6 +4,7 @@ using System.Collections.Generic;
 //a building
 public class Building : MonoBehaviour {
 
+	public bool isMainBuilding = false;
 	public int maxCount = -1;
 	public float buildTime = 2;
 	public Transform center;
@@ -23,6 +24,7 @@ public class Building : MonoBehaviour {
 		}
 	}
 
+	public static Building mainBuilding { get; private set; }
 	RendererGroup structureRenderers;
 	new Collider collider;
 	static float angle;
@@ -42,7 +44,7 @@ public class Building : MonoBehaviour {
 		}
 	}
 
-	public HashSet<BuildingComponent> components { get; private set; }
+	public HashSet<BuildingModule> modules { get; private set; }
 
 	static HashSet<Building> _grid;
 	public static HashSet<Building> grid { get { if (_grid == null) _grid = new HashSet<Building>(); return _grid; } }
@@ -89,6 +91,7 @@ public class Building : MonoBehaviour {
 	public void Initialize(Builder builder, Building prefab) {
 		this.builder = builder;
 		this.prefab = prefab;
+		if (isMainBuilding) mainBuilding = this;
 		center = (center == null) ? (transform) : (center);
 		connectionPoint = (connectionPoint == null) ? (center) : (connectionPoint);
 		structureRenderers = new RendererGroup(this, structureRenderersTag);
@@ -96,9 +99,10 @@ public class Building : MonoBehaviour {
 		state = State.Placing;
 		neighbors = new HashSet<Building>();
 		connectors = new HashSet<Connector>();
-		components = new HashSet<BuildingComponent>();
-		foreach (BuildingComponent component in GetComponentsInChildren<BuildingComponent>()) {
-			components.Add(component);
+		modules = new HashSet<BuildingModule>();
+		foreach (BuildingModule module in GetComponentsInChildren<BuildingModule>()) {
+			modules.Add(module);
+			module.Initialize(this);
 		}
 	}
 
@@ -126,7 +130,6 @@ public class Building : MonoBehaviour {
 			return;
 		}
 		gameObject.layer = builder.incompleteBuildingLayer;
-		SetChildrenActive(false);
 		indicator.gameObject.SetActive(false);
 		collider.enabled = false;
 		RaycastHit hit;
@@ -149,6 +152,7 @@ public class Building : MonoBehaviour {
 			state = State.Constructing;
 			builder.status = Builder.Status.Idle;
 			buildSpeed = 1;
+			Connect();
 			count ++;
 			if (Input.GetButton("Multi Build")) {
 				//if user is holding left shift, start placing another copy of this building
@@ -159,7 +163,6 @@ public class Building : MonoBehaviour {
 
 	void UpdateConstructing() {
 		gameObject.layer = builder.incompleteBuildingLayer;
-		SetChildrenActive(false);
 		indicator.gameObject.SetActive(true);
 		collider.enabled = true;
 		structureRenderers.enabled = true;
@@ -181,8 +184,8 @@ public class Building : MonoBehaviour {
 		buildProgress = Mathf.Clamp01(buildProgress);
 		if (buildSpeed > 0 && buildProgress == 1) {
 			buildSpeed = 0;
-			Connect();
 			state = State.Active;
+			UpdateGrid();
 		}
 		if (buildSpeed < 0 && buildProgress == 0) {
 			Demolish();
@@ -191,7 +194,6 @@ public class Building : MonoBehaviour {
 
 	void UpdateActive() {
 		gameObject.layer = builder.buildingLayer;
-		SetChildrenActive(true);
 		indicator.gameObject.SetActive(false);
 		collider.enabled = true;
 		structureRenderers.enabled = true;
@@ -214,7 +216,8 @@ public class Building : MonoBehaviour {
 	}
 
 	public virtual bool PositionValid(Vector3 position) {
-		return PositionUnobstucted(position) && PositionNearExistingBuilding(position);
+		//the main building doesn't need to placed near another building
+		return PositionUnobstucted(position) && PositionNearExistingBuilding(position) || isMainBuilding;
 	}
 
 	public bool PositionUnobstucted(Vector3 position) {
@@ -229,13 +232,6 @@ public class Building : MonoBehaviour {
 		return prefab.maxCount < 0 || prefab.count < prefab.maxCount;
 	}
 
-	void SetChildrenActive(bool active) {
-		for (int c = 0; c < transform.childCount; c ++) {
-			Transform child = transform.GetChild(c);
-			child.gameObject.SetActive(active);
-		}
-	}
-
 	public void CancelPlacing() {
 		if (state == State.Placing) {
 			Destroy(gameObject);
@@ -245,9 +241,9 @@ public class Building : MonoBehaviour {
 
 	public void StartDemolish() {
 		if (!permanent) {
-			Disconnect();
 			buildSpeed = -1;
 			state = State.Constructing;
+			UpdateGrid();
 		}
 	}
 
@@ -287,26 +283,27 @@ public class Building : MonoBehaviour {
 
 	public void Demolish() {
 		Disconnect();
+		if (isMainBuilding) mainBuilding = null;
 		count --;
 		Destroy(indicator.gameObject);
 		Destroy(gameObject);
 	}
 
-	//update the grid of buildings using and iterative flood-fill
+	//update the grid of buildings using an iterative brushfire
 	//called whenever a building is connected or disconnected
-	public void UpdateGrid() {
+	public static void UpdateGrid() {
 		grid.Clear();
-		MainBuilding mainBuilding = FindObjectOfType<MainBuilding>();
 		if (mainBuilding != null) {
 			Queue<Building> queue = new Queue<Building>();
 			queue.Enqueue(mainBuilding);
-			grid.Add(mainBuilding);
 			while (queue.Count > 0) {
 				Building building = queue.Dequeue();
-				foreach (Building neighbor in building.neighbors) {
-					if (!grid.Contains(neighbor)) {
-						grid.Add(neighbor);
-						queue.Enqueue(neighbor);
+				grid.Add(building);
+				if (building.state != State.Constructing) {
+					foreach (Building neighbor in building.neighbors) {
+						if (!grid.Contains(neighbor)) {
+							queue.Enqueue(neighbor);
+						}
 					}
 				}
 			}

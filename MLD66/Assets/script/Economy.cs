@@ -11,7 +11,7 @@ public class Economy : SingletonBehaviour<Economy> {
 	void Update() {
 		float mineralDelta = 0;
 		foreach (Building building in Building.grid) {
-			foreach (BuildingComponent component in building.components) {
+			foreach (BuildingModule component in building.modules) {
 				if (component is IMineralMachine) {
 					IMineralMachine mineralMachine = (IMineralMachine) component;
 					mineralMachines.Add(mineralMachine);
