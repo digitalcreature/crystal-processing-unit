@@ -234,15 +234,16 @@ public class Building : MonoBehaviour {
 				return false;
 			}
 		}
-		return !Physics.CheckSphere(transform.position, builder.obstacleRadius, builder.obstacleLayers) 
+		return !Physics.CheckSphere(transform.position, builder.obstacleRadius, builder.obstacleLayers)
 			//the main building doesn't need to placed near another building, other buildings do
 			&& (isMainBuilding || Physics.CheckSphere(center.position, builder.maxBuildingDistance, builder.buildingLayers));
 	}
 
+	//return true if the player can start placing the building
 	public virtual bool CanBuild() {
-		return prefab.maxCount < 0 || prefab.count < prefab.maxCount;
+		return (prefab.maxCount < 0 || prefab.count < prefab.maxCount) && (isMainBuilding || (mainBuilding != null && mainBuilding.state != State.Placing));
 	}
-
+	
 	public void CancelPlacing() {
 		if (state == State.Placing) {
 			Destroy(gameObject);
