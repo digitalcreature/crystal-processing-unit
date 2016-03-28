@@ -7,13 +7,16 @@ public class Building : MonoBehaviour, IMineralMachine {
 
 	public bool isMainBuilding = false;
 	public int maxCount = -1;
-	public float buildTime = 2;
+	public float mineralCost = 5;
 	public Transform center;
 	public Transform connectionPoint;		//point that connectors connect to
 	public bool permanent = false;
 	public string structureRenderersTag = "Building Structure";
 
 	public State state { get; private set; }
+	public bool isPlacing { get { return state == State.Placing; } }
+	public bool isConstructing { get { return state == State.Constructing; } }
+	public bool isActive { get { return state == State.Active; } }
 	public Builder builder { get; private set; }
 	Building _prefab;
 	public Building prefab {
@@ -62,8 +65,9 @@ public class Building : MonoBehaviour, IMineralMachine {
 		}
 	}
 
-	//reference to main building, null if none present
-	public static Building mainBuilding { get; private set; }
+	//reference to main building module, null if none present
+	public static MainBuildingModule mainBuildingModule { get; private set; }
+	public static Building mainBuilding { get { return mainBuildingModule == null ? null : mainBuildingModule.building; } }
 	static HashSet<Building> _grid;
 	public static HashSet<Building> grid { get { if (_grid == null) _grid = new HashSet<Building>(); return _grid; } }
 	public bool isConnected {
@@ -111,7 +115,14 @@ public class Building : MonoBehaviour, IMineralMachine {
 	public void Initialize(Builder builder, Building prefab) {
 		this.builder = builder;
 		this.prefab = prefab;
-		if (isMainBuilding) mainBuilding = this;
+		MainBuildingModule mainBuildingModule = GetComponent<MainBuildingModule>();
+		if (mainBuildingModule != null) {
+			Building.mainBuildingModule = mainBuildingModule;
+			isMainBuilding = true;	//isMainBuilding should be set **ON THE PREFAB** this is just here to make sure its right at runtime
+		}
+		else {
+			isMainBuilding = false;
+		}
 		center = (center == null) ? (transform) : (center);
 		connectionPoint = (connectionPoint == null) ? (center) : (connectionPoint);
 		structureRenderers = new RendererGroup(this, structureRenderersTag);
@@ -129,6 +140,8 @@ public class Building : MonoBehaviour, IMineralMachine {
 		indicator.building = this;
 		indicator.transform.SetParent(builder.transform, false);
 		indicator.transform.position = transform.position;
+		Rigidbody body = gameObject.AddComponent<Rigidbody>();
+		body.constraints = RigidbodyConstraints.FreezeAll;
 	}
 
 	void Update() {
@@ -188,15 +201,22 @@ public class Building : MonoBehaviour, IMineralMachine {
 		}
 	}
 
-	public float requestedMineralDelta { get { return 0; } }
+	public float requestedMineralDelta {
+		get {
+			return builder.mineralUsageRate * -buildSpeed;
+		}
+	}
 
 	public void ProcessMinerals(float mineralDelta) {
 		if (state == State.Constructing) {
-			buildProgress += buildSpeed * Time.deltaTime / buildTime;
+			buildProgress -= Time.deltaTime * mineralDelta / mineralCost;
 			buildProgress = Mathf.Clamp01(buildProgress);
 			if (buildSpeed > 0 && buildProgress == 1) {
 				buildSpeed = 0;
 				state = State.Active;
+				foreach (BuildingModule module in modules) {
+					module.Activate();
+				}
 				UpdateGrid();
 			}
 			if (buildSpeed < 0 && buildProgress == 0) {
@@ -281,7 +301,7 @@ public class Building : MonoBehaviour, IMineralMachine {
 
 	//return true if the player can start placing the building
 	public bool CanBuild() {
-		return (prefab.maxCount < 0 || prefab.count < prefab.maxCount) && (isMainBuilding || (mainBuilding != null && mainBuilding.state != State.Placing));
+		return (maxCount < 0 || count < maxCount) && (isMainBuilding || (mainBuilding != null && mainBuilding.state != State.Placing));
 	}
 
 	public void CancelPlacing() {
@@ -334,7 +354,7 @@ public class Building : MonoBehaviour, IMineralMachine {
 
 	public void Demolish() {
 		Disconnect();
-		if (isMainBuilding) mainBuilding = null;
+		if (isMainBuilding) mainBuildingModule = null;
 		count --;
 		Destroy(indicator.gameObject);
 		Destroy(gameObject);

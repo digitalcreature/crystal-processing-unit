@@ -15,27 +15,10 @@ public class MiningModule : BuildingModule, IMineralMachine {
 	new Renderer renderer;
 	ParticleSystem particles;
 
-	bool _active;
-	bool active {
-		get {
-			return _active;
-		}
-		set {
-			if (value != _active) {
-				renderer.material = value ? activeMaterial : inactiveMaterial;
-				if (value)
-					particles.Play();
-				else
-					particles.Stop();
-			}
-			_active = value;
-		}
-	}
-
 	public float requestedMineralDelta { get { return mineSpeed; } }
 
 	public void ProcessMinerals(float mineralDelta) {
-
+		//here is where we shrink the mineral nodes we are mining
 	}
 
 	void Awake() {
@@ -43,12 +26,9 @@ public class MiningModule : BuildingModule, IMineralMachine {
 		particles = GetComponent<ParticleSystem>();
 	}
 
-	void Update() {
-		if (nodes == null) {
-			nodes = new HashSet<MineralNode>();
-			Connect();
-		}
-		active = building.isConnected;
+	public override void Activate() {
+		nodes = new HashSet<MineralNode>();
+		Connect();
 	}
 
 	public void Connect() {
@@ -59,6 +39,14 @@ public class MiningModule : BuildingModule, IMineralMachine {
 				nodes.Add(node);
 			}
 		}
+	}
+
+	protected override void OnActiveChange(bool active) {
+		renderer.material = active ? activeMaterial : inactiveMaterial;
+		if (active)
+			particles.Play();
+		else
+			particles.Stop();
 	}
 
 	public override bool PlacingValid() {

@@ -26,6 +26,7 @@ public class Builder : SingletonBehaviour<Builder> {
 	public Material cancelSelectionMaterial;
 	public BuildingProgressIndicator indicatorPrefab;
 	public Connector connectorPrefab;
+	public float mineralUsageRate;			//how quickly minerals are used when building
 
 	[HideInInspector]
 	public Status status;
