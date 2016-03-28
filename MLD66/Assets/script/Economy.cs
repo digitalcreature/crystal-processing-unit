@@ -10,14 +10,20 @@ public class Economy : SingletonBehaviour<Economy> {
 
 	void Update() {
 		float mineralDelta = 0;
+		mineralMachines.Clear();
 		foreach (Building building in Building.grid) {
+			mineralMachines.Add(building);
 			foreach (BuildingModule component in building.modules) {
 				if (component is IMineralMachine) {
 					IMineralMachine mineralMachine = (IMineralMachine) component;
 					mineralMachines.Add(mineralMachine);
-					mineralDelta += mineralMachine.requestedMineralDelta;
 				}
 			}
+		}
+		foreach (IMineralMachine mineralMachine in mineralMachines) {
+			float requestedMineralDelta = mineralMachine.requestedMineralDelta;
+			mineralDelta += requestedMineralDelta;
+			mineralMachine.ProcessMinerals(requestedMineralDelta);
 		}
 		minerals += mineralDelta * Time.deltaTime;
 	}
