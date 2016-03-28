@@ -189,10 +189,15 @@ public class Building : MonoBehaviour, IResourceUser {
 		bool valid = PlacingValid();
 		structureRenderers.material = valid ? builder.validPlacingMaterial : builder.invalidPlacingMaterial;
 		if (Input.GetMouseButtonDown((int) MouseButton.Left) && valid && !hiding) {
-			state = State.Constructing;
-			builder.status = Builder.Status.Idle;
-			buildSpeed = 1;
+			if (mineralCost == 0) {
+				Activate();
+			}
+			else {
+				state = State.Constructing;
+				buildSpeed = 1;
+			}
 			Connect();
+			builder.status = Builder.Status.Idle;
 			count ++;
 			if (Input.GetButton("Multi Build")) {
 				//if user is holding left shift, start placing another copy of this building
@@ -201,29 +206,15 @@ public class Building : MonoBehaviour, IResourceUser {
 		}
 	}
 
-	public float mineralUsage {
-		get {
-			return builder.mineralUsageRate * buildSpeed;
-		}
-	}
-
-	public float energyUsage {
-		get {
-			return 0;
-		}
-	}
-
-	public void UseResources(float mineralDelta, float energyDelta) {
+	public float GetMineralUsage() { return builder.mineralUsageRate * buildSpeed; }
+	public float GetEnergyUsage() { return 0; }
+	
+	public void UseResources(ref float mineralUsage, ref float energyUsage) {
 		if (state == State.Constructing) {
-			buildProgress -= mineralDelta / mineralCost;
+			buildProgress += mineralUsage / mineralCost * Time.deltaTime;
 			buildProgress = Mathf.Clamp01(buildProgress);
 			if (buildSpeed > 0 && buildProgress >= 1) {
-				buildSpeed = 0;
-				state = State.Active;
-				foreach (BuildingModule module in modules) {
-					module.Activate();
-				}
-				UpdateGrid();
+				Activate();
 			}
 			if (buildSpeed < 0 && buildProgress <= 0) {
 				Demolish();
@@ -272,6 +263,15 @@ public class Building : MonoBehaviour, IResourceUser {
 					break;
 			}
 		}
+	}
+
+	void Activate() {
+		buildSpeed = 0;
+		state = State.Active;
+		foreach (BuildingModule module in modules) {
+			module.Activate();
+		}
+		UpdateGrid();
 	}
 
 	void OnCollisionStay() {

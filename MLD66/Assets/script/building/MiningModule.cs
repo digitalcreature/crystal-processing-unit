@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class MiningModule : BuildingModule, IResourceUser {
 
 	public float mineSpeed = 5;
+	public float energyUsage = 1;
 	public float range = 1;
 	public LayerMask mineralMask;
 
@@ -15,12 +16,12 @@ public class MiningModule : BuildingModule, IResourceUser {
 	new Renderer renderer;
 	ParticleSystem particles;
 
-	public float mineralUsage { get { return -mineSpeed; } }
-	public float energyUsage { get { return 0; } }
+	public float GetMineralUsage() { return -mineSpeed; }
+	public float GetEnergyUsage() { return energyUsage; }
 
-
-	public void UseResources(float mineralDelta, float energyDelta) {
+	public void UseResources(ref float mineralUsage, ref float energyUsage) {
 		//here is where we shrink the mineral nodes we are mining
+		mineralUsage *= energyUsage / this.energyUsage;
 	}
 
 	void Awake() {

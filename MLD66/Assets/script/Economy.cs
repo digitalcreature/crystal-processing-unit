@@ -4,18 +4,17 @@ using System.Collections.Generic;
 //manage resources
 public class Economy : SingletonBehaviour<Economy> {
 
-	HashSet<IResourceUser> users;
-
 	public float mineralCount { get; set; }
 	public float mineralCapacity { get; private set; }
 	public float mineralUsage { get; private set; }
 	public float mineralDelta { get { return -mineralUsage * Time.deltaTime; } }
 
-
 	public float energyCount { get; set; }
 	public float energyCapacity { get; private set; }
 	public float energyUsage { get; private set; }
 	public float energyDelta { get { return -energyUsage * Time.deltaTime; } }
+
+	HashSet<IResourceUser> users;
 
 	void Awake() {
 		users = new HashSet<IResourceUser>();
@@ -36,19 +35,34 @@ public class Economy : SingletonBehaviour<Economy> {
 						users.Add(user);
 					}
 					if (component is IResourceStorage) {
-						IResourceStorage mineralStorage = (IResourceStorage) component;
-						mineralCapacity += mineralStorage.mineralCapacity;
+						IResourceStorage resourceStorage = (IResourceStorage) component;
+						mineralCapacity += resourceStorage.GetMineralCapacity();
+						energyCapacity += resourceStorage.GetEnergyCapacity();
 					}
 				}
 			}
 		}
+		//collect net usages
 		foreach (IResourceUser user in users) {
-			mineralUsage += user.mineralUsage;
-			energyUsage += user.energyUsage;
-			user.UseResources(user.mineralUsage * -Time.deltaTime, user.energyUsage * -Time.deltaTime);
+			mineralUsage += user.GetMineralUsage();
+			energyUsage += user.GetEnergyUsage();
+		}
+		float mineralUsageFactor = (mineralCount + mineralDelta) < 0 ? (mineralUsageFactor = mineralCount / - mineralDelta) : 1;
+		float energyUsageFactor = (energyCount + energyDelta) < 0 ? (energyUsageFactor = energyCount / - energyDelta) : 1;
+		//use resources
+		mineralUsage = 0;
+		energyUsage = 0;
+		foreach (IResourceUser user in users) {
+			float userMineralUsage = user.GetMineralUsage() * mineralUsageFactor;
+			float userEnergyUsage = user.GetEnergyUsage() * energyUsageFactor;
+			user.UseResources(ref userMineralUsage, ref userEnergyUsage);
+			mineralUsage += userMineralUsage;
+			energyUsage += userEnergyUsage;
 		}
 		mineralCount += mineralDelta;
+		mineralCount = Mathf.Clamp(mineralCount, 0, mineralCapacity);
 		energyCount += energyDelta;
+		energyCount = Mathf.Clamp(energyCount, 0, energyCapacity);
 	}
 
 
@@ -56,16 +70,16 @@ public class Economy : SingletonBehaviour<Economy> {
 
 public interface IResourceUser {
 
-	float mineralUsage { get; }
-	float energyUsage { get; }
+	float GetMineralUsage();
+	float GetEnergyUsage();
 
-	void UseResources(float mineralDelta, float energyDelta);
+	void UseResources(ref float mineralUsage, ref float energyUsage);
 
 }
 
 public interface IResourceStorage {
 
-	float mineralCapacity { get; }
-	float energyCapacity { get; }
+	float GetMineralCapacity();
+	float GetEnergyCapacity();
 
 }
