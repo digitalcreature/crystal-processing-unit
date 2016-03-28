@@ -1,53 +1,27 @@
 fileFormatVersion: 2
-guid: 1d22357d44aa194448d4dd8429d53116
-timeCreated: 1458523881
+guid: d5ba1bc4f59329646bdfc0954de4600c
+timeCreated: 1459200992
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
-    100002: conduit
-    100004: cpu
-    100006: connector
-    100008: connector_detail
-    100010: Cylinder
-    100012: Empty
-    100014: laserdrill
-    100016: laserdrill_lens
+    100002: bismuth_med
+    100004: mineralnode
+    100006: rock_med
     400000: //RootNode
-    400002: conduit
-    400004: cpu
-    400006: connector
-    400008: connector_detail
-    400010: Cylinder
-    400012: Empty
-    400014: laserdrill
-    400016: laserdrill_lens
-    2300000: //RootNode
-    2300002: conduit
-    2300004: cpu
-    2300006: connector
-    2300008: connector_detail
-    2300010: Cylinder
-    2300012: laserdrill
-    2300014: laserdrill_lens
-    3300000: //RootNode
-    3300002: conduit
-    3300004: cpu
-    3300006: connector
-    3300008: connector_detail
-    3300010: Cylinder
-    3300012: laserdrill
-    3300014: laserdrill_lens
-    4300000: conduit
-    4300002: cpu
-    4300004: connector
-    4300006: connector_detail
-    4300008: Cylinder
-    4300010: laserdrill
-    4300012: laserdrill_lens
-    7400000: Default Take
-    9500000: //RootNode
+    400002: bismuth_med
+    400004: mineralnode
+    400006: rock_med
+    2300000: bismuth_med
+    2300002: mineralnode
+    2300004: rock_med
+    3300000: bismuth_med
+    3300002: mineralnode
+    3300004: rock_med
+    4300000: bismuth_med
+    4300002: rock_med
+    4300004: mineralnode
   materials:
     importMaterials: 0
     materialName: 0
@@ -72,14 +46,14 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 100
     meshCompression: 0
     addColliders: 0
-    importBlendShapes: 0
+    importBlendShapes: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 0
+    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
     secondaryUVAngleDistortion: 8

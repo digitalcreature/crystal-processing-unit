@@ -1,29 +1,42 @@
 fileFormatVersion: 2
-guid: 48515f8447be30543b6ad0ae6310a447
-timeCreated: 1458249329
+guid: 95956c8716bc1d94496169f43f9dfa33
+timeCreated: 1459200936
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
-    100002: bismuth_med
-    100004: mineralnode
-    100006: rock_med
+    100002: conduit
+    100004: connector
+    100006: connector_detail
+    100008: cpu
+    100010: laserdrill
+    100012: laserdrill_lens
     400000: //RootNode
-    400002: bismuth_med
-    400004: mineralnode
-    400006: rock_med
-    2300000: bismuth_med
-    2300002: mineralnode
-    2300004: rock_med
-    3300000: bismuth_med
-    3300002: mineralnode
-    3300004: rock_med
-    4300000: bismuth_med
-    4300002: rock_med
-    4300004: mineralnode
-    7400000: Default Take
-    9500000: //RootNode
+    400002: conduit
+    400004: connector
+    400006: connector_detail
+    400008: cpu
+    400010: laserdrill
+    400012: laserdrill_lens
+    2300000: conduit
+    2300002: connector
+    2300004: connector_detail
+    2300006: cpu
+    2300008: laserdrill
+    2300010: laserdrill_lens
+    3300000: conduit
+    3300002: connector
+    3300004: connector_detail
+    3300006: cpu
+    3300008: laserdrill
+    3300010: laserdrill_lens
+    4300000: laserdrill
+    4300002: laserdrill_lens
+    4300004: connector_detail
+    4300006: connector
+    4300008: cpu
+    4300010: conduit
   materials:
     importMaterials: 0
     materialName: 0
@@ -48,7 +61,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 100
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1
