@@ -4,59 +4,68 @@ using System.Collections.Generic;
 //manage resources
 public class Economy : SingletonBehaviour<Economy> {
 
+	HashSet<IResourceUser> users;
 
-	public float initialMineralCount;
-
-	HashSet<IMineralMachine> mineralMachines;
-
-	public float mineralCount { get; private set; }
+	public float mineralCount { get; set; }
 	public float mineralCapacity { get; private set; }
+	public float mineralUsage { get; private set; }
+	public float mineralDelta { get { return -mineralUsage * Time.deltaTime; } }
+
+
+	public float energyCount { get; set; }
+	public float energyCapacity { get; private set; }
+	public float energyUsage { get; private set; }
+	public float energyDelta { get { return -energyUsage * Time.deltaTime; } }
 
 	void Awake() {
-		mineralMachines = new HashSet<IMineralMachine>();
-		mineralCount = initialMineralCount;
+		users = new HashSet<IResourceUser>();
 	}
 
 	void Update() {
-		float mineralDelta = 0;
+		mineralUsage = 0;
+		energyUsage = 0;
 		mineralCapacity = 0;
-		mineralMachines.Clear();
+		energyCapacity = 0;
+		users.Clear();
 		foreach (Building building in Building.grid) {
-			mineralMachines.Add(building);
+			users.Add(building);
 			if (building.isActive) {
 				foreach (BuildingModule component in building.modules) {
-					if (component is IMineralMachine) {
-						IMineralMachine mineralMachine = (IMineralMachine) component;
-						mineralMachines.Add(mineralMachine);
+					if (component is IResourceUser) {
+						IResourceUser user = (IResourceUser) component;
+						users.Add(user);
 					}
-					if (component is IMineralStorage) {
-						IMineralStorage mineralStorage = (IMineralStorage) component;
+					if (component is IResourceStorage) {
+						IResourceStorage mineralStorage = (IResourceStorage) component;
 						mineralCapacity += mineralStorage.mineralCapacity;
 					}
 				}
 			}
 		}
-		foreach (IMineralMachine mineralMachine in mineralMachines) {
-			float requestedMineralDelta = mineralMachine.requestedMineralDelta;
-			mineralDelta += requestedMineralDelta;
-			mineralMachine.ProcessMinerals(requestedMineralDelta);
+		foreach (IResourceUser user in users) {
+			mineralUsage += user.mineralUsage;
+			energyUsage += user.energyUsage;
+			user.UseResources(user.mineralUsage * -Time.deltaTime, user.energyUsage * -Time.deltaTime);
 		}
-		mineralCount += mineralDelta * Time.deltaTime;
+		mineralCount += mineralDelta;
+		energyCount += energyDelta;
 	}
 
 
 }
 
-public interface IMineralMachine {
+public interface IResourceUser {
 
-	float requestedMineralDelta { get; }
+	float mineralUsage { get; }
+	float energyUsage { get; }
 
-	void ProcessMinerals(float mineralDelta);
+	void UseResources(float mineralDelta, float energyDelta);
 
 }
 
-public interface IMineralStorage {
+public interface IResourceStorage {
 
 	float mineralCapacity { get; }
+	float energyCapacity { get; }
 
 }

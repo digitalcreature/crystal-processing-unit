@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class MiningModule : BuildingModule, IMineralMachine {
+public class MiningModule : BuildingModule, IResourceUser {
 
 	public float mineSpeed = 5;
 	public float range = 1;
@@ -15,9 +15,11 @@ public class MiningModule : BuildingModule, IMineralMachine {
 	new Renderer renderer;
 	ParticleSystem particles;
 
-	public float requestedMineralDelta { get { return mineSpeed; } }
+	public float mineralUsage { get { return -mineSpeed; } }
+	public float energyUsage { get { return 0; } }
 
-	public void ProcessMinerals(float mineralDelta) {
+
+	public void UseResources(float mineralDelta, float energyDelta) {
 		//here is where we shrink the mineral nodes we are mining
 	}
 

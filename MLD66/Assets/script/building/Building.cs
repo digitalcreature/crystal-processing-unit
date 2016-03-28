@@ -3,7 +3,7 @@ using UnityEditor;
 using System.Collections.Generic;
 
 //a building
-public class Building : MonoBehaviour, IMineralMachine {
+public class Building : MonoBehaviour, IResourceUser {
 
 	public bool isMainBuilding = false;
 	public int maxCount = -1;
@@ -201,17 +201,23 @@ public class Building : MonoBehaviour, IMineralMachine {
 		}
 	}
 
-	public float requestedMineralDelta {
+	public float mineralUsage {
 		get {
-			return builder.mineralUsageRate * -buildSpeed;
+			return builder.mineralUsageRate * buildSpeed;
 		}
 	}
 
-	public void ProcessMinerals(float mineralDelta) {
+	public float energyUsage {
+		get {
+			return 0;
+		}
+	}
+
+	public void UseResources(float mineralDelta, float energyDelta) {
 		if (state == State.Constructing) {
-			buildProgress -= Time.deltaTime * mineralDelta / mineralCost;
+			buildProgress -= mineralDelta / mineralCost;
 			buildProgress = Mathf.Clamp01(buildProgress);
-			if (buildSpeed > 0 && buildProgress == 1) {
+			if (buildSpeed > 0 && buildProgress >= 1) {
 				buildSpeed = 0;
 				state = State.Active;
 				foreach (BuildingModule module in modules) {
@@ -219,7 +225,7 @@ public class Building : MonoBehaviour, IMineralMachine {
 				}
 				UpdateGrid();
 			}
-			if (buildSpeed < 0 && buildProgress == 0) {
+			if (buildSpeed < 0 && buildProgress <= 0) {
 				Demolish();
 			}
 		}
