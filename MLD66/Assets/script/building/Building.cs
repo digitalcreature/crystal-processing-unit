@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
 
 //a building
@@ -208,7 +207,7 @@ public class Building : MonoBehaviour, IResourceUser {
 
 	public float GetMineralUsage() { return builder.mineralUsageRate * buildSpeed; }
 	public float GetEnergyUsage() { return 0; }
-	
+
 	public void UseResources(ref float mineralUsage, ref float energyUsage) {
 		if (state == State.Constructing) {
 			buildProgress += mineralUsage / mineralCost * Time.deltaTime;
@@ -296,12 +295,11 @@ public class Building : MonoBehaviour, IResourceUser {
 	}
 
 	void OnDrawGizmos() {
-		if (state == State.Placing) {
+		if (state == State.Placing && builder != null) {
 			Gizmos.color = Color.red;
 			Gizmos.DrawWireSphere(transform.position, builder.obstacleRadius);
 			Gizmos.color = Color.green;
 			Gizmos.DrawWireSphere(center.position, builder.maxBuildingDistance);
-			Handles.Label(transform.position, "" + obstacleBlocked);
 		}
 	}
 

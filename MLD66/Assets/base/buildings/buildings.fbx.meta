@@ -12,6 +12,9 @@ ModelImporter:
     100008: cpu
     100010: laserdrill
     100012: laserdrill_lens
+    100014: Empty
+    100016: solarpanel
+    100018: solarpanel_panes
     400000: //RootNode
     400002: conduit
     400004: connector
@@ -19,24 +22,33 @@ ModelImporter:
     400008: cpu
     400010: laserdrill
     400012: laserdrill_lens
+    400014: Empty
+    400016: solarpanel
+    400018: solarpanel_panes
     2300000: conduit
     2300002: connector
     2300004: connector_detail
     2300006: cpu
     2300008: laserdrill
     2300010: laserdrill_lens
+    2300012: solarpanel
+    2300014: solarpanel_panes
     3300000: conduit
     3300002: connector
     3300004: connector_detail
     3300006: cpu
     3300008: laserdrill
     3300010: laserdrill_lens
+    3300012: solarpanel
+    3300014: solarpanel_panes
     4300000: laserdrill
     4300002: laserdrill_lens
     4300004: connector_detail
     4300006: connector
     4300008: cpu
     4300010: conduit
+    4300012: solarpanel
+    4300014: solarpanel_panes
   materials:
     importMaterials: 0
     materialName: 0
