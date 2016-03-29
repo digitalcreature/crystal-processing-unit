@@ -17,6 +17,9 @@ ModelImporter:
     100018: solarpanel_panes
     100020: solarpanel_center
     100022: solarpanel_collider
+    100024: mineral silo
+    100026: bettery
+    100028: battery
     400000: //RootNode
     400002: conduit
     400004: connector
@@ -29,6 +32,9 @@ ModelImporter:
     400018: solarpanel_panes
     400020: solarpanel_center
     400022: solarpanel_collider
+    400024: mineral silo
+    400026: bettery
+    400028: battery
     2300000: conduit
     2300002: connector
     2300004: connector_detail
@@ -39,6 +45,9 @@ ModelImporter:
     2300014: solarpanel_panes
     2300016: solarpanel_center
     2300018: solarpanel_collider
+    2300020: mineral silo
+    2300022: bettery
+    2300024: battery
     3300000: conduit
     3300002: connector
     3300004: connector_detail
@@ -49,6 +58,9 @@ ModelImporter:
     3300014: solarpanel_panes
     3300016: solarpanel_center
     3300018: solarpanel_collider
+    3300020: mineral silo
+    3300022: bettery
+    3300024: battery
     4300000: laserdrill
     4300002: laserdrill_lens
     4300004: connector_detail
@@ -59,6 +71,9 @@ ModelImporter:
     4300014: solarpanel_panes
     4300016: solarpanel_collider
     4300018: solarpanel_center
+    4300020: mineral silo
+    4300022: bettery
+    4300024: battery
   materials:
     importMaterials: 0
     materialName: 0
