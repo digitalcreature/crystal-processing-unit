@@ -205,11 +205,12 @@ public class Building : MonoBehaviour, IResourceUser {
 		}
 	}
 
-	public float GetMineralUsage() { return builder.mineralUsageRate * buildSpeed; }
+	//ECONOMY
+	public float GetMineralUsage() { return isConstructing ? builder.mineralUsageRate * buildSpeed : 0; }
 	public float GetEnergyUsage() { return 0; }
 
 	public void UseResources(ref float mineralUsage, ref float energyUsage) {
-		if (state == State.Constructing) {
+		if (isConstructing) {
 			buildProgress += mineralUsage / mineralCost * Time.deltaTime;
 			buildProgress = Mathf.Clamp01(buildProgress);
 			if (buildSpeed > 0 && buildProgress >= 1) {
