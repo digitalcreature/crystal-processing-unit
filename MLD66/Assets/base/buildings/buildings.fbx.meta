@@ -15,6 +15,8 @@ ModelImporter:
     100014: Empty
     100016: solarpanel
     100018: solarpanel_panes
+    100020: solarpanel_center
+    100022: solarpanel_collider
     400000: //RootNode
     400002: conduit
     400004: connector
@@ -25,6 +27,8 @@ ModelImporter:
     400014: Empty
     400016: solarpanel
     400018: solarpanel_panes
+    400020: solarpanel_center
+    400022: solarpanel_collider
     2300000: conduit
     2300002: connector
     2300004: connector_detail
@@ -33,6 +37,8 @@ ModelImporter:
     2300010: laserdrill_lens
     2300012: solarpanel
     2300014: solarpanel_panes
+    2300016: solarpanel_center
+    2300018: solarpanel_collider
     3300000: conduit
     3300002: connector
     3300004: connector_detail
@@ -41,6 +47,8 @@ ModelImporter:
     3300010: laserdrill_lens
     3300012: solarpanel
     3300014: solarpanel_panes
+    3300016: solarpanel_center
+    3300018: solarpanel_collider
     4300000: laserdrill
     4300002: laserdrill_lens
     4300004: connector_detail
@@ -49,6 +57,8 @@ ModelImporter:
     4300010: conduit
     4300012: solarpanel
     4300014: solarpanel_panes
+    4300016: solarpanel_collider
+    4300018: solarpanel_center
   materials:
     importMaterials: 0
     materialName: 0
