@@ -12,7 +12,6 @@ public class Builder : SingletonBehaviour<Builder> {
 	public Transform placingBuildingHidingPlace;	//where placing buildings go when they cant be seen
 	public LayerMask groundMask;					//stuff you can build on
 	public LayerMask obstacleMask;				//stuff that blocks building placement
-	public float obstacleRadius = .25f;
 	public LayerMask activeBuildingMask;				//stuff that counts as completed buildings
 	public LayerMask placingNeighborMask;		//stuff that can be built next to
 	public float maxBuildingDistance = .5f;	//maximum distance a new bulding can be from an old one

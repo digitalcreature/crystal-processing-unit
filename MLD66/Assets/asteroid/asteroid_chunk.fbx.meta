@@ -9,19 +9,24 @@ ModelImporter:
     100002: bismuth_med
     100004: mineralnode
     100006: rock_med
+    100008: rock_med_col
     400000: //RootNode
     400002: bismuth_med
     400004: mineralnode
     400006: rock_med
+    400008: rock_med_col
     2300000: bismuth_med
     2300002: mineralnode
     2300004: rock_med
+    2300006: rock_med_col
     3300000: bismuth_med
     3300002: mineralnode
     3300004: rock_med
+    3300006: rock_med_col
     4300000: bismuth_med
     4300002: rock_med
     4300004: mineralnode
+    4300006: rock_med_col
   materials:
     importMaterials: 0
     materialName: 0

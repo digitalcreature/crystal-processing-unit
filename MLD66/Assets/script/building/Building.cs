@@ -299,15 +299,13 @@ public class Building : MonoBehaviour, IResourceUser {
 				return false;
 			}
 		}
-		return !obstacleBlocked//!Physics.CheckSphere(transform.position, builder.obstacleRadius, builder.obstacleMask)
+		return !obstacleBlocked
 			//the main building doesn't need to placed near another building, other buildings do
 			&& (isMainBuilding || Physics.CheckSphere(center.position, builder.maxBuildingDistance, builder.placingNeighborMask));
 	}
 
 	void OnDrawGizmos() {
 		if (state == State.Placing && builder != null) {
-			Gizmos.color = Color.red;
-			Gizmos.DrawWireSphere(transform.position, builder.obstacleRadius);
 			Gizmos.color = Color.green;
 			Gizmos.DrawWireSphere(center.position, builder.maxBuildingDistance);
 		}
