@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class MainBuildingModule : BuildingModule {
 
-	public float startingMinerals;
-	public float startingEnergy;
+	public float startingMineralCount;
+	public float startingEnergyCount;
 
 	public override void Activate() {
 		Economy eco = Economy.main;
-		eco.mineralCount += startingMinerals;
-		eco.energyCount += startingEnergy;
+		eco.mineral.count += startingMineralCount;
+		eco.energy.count += startingEnergyCount;
 	}
 
 }

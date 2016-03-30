@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 //a building
-public class Building : MonoBehaviour, IResourceUser {
+public class Building : MonoBehaviour, IWorker {
 
 	public bool isMainBuilding = false;
 	public int maxCount = -1;
@@ -215,12 +215,21 @@ public class Building : MonoBehaviour, IResourceUser {
 	}
 
 	//ECONOMY
-	public float GetMineralUsage() { return isConstructing ? builder.mineralUsageRate * buildSpeed : 0; }
-	public float GetEnergyUsage() { return 0; }
+	public float GetResourceRate(Resource.Type type) {
+		switch (type) {
+			case Resource.Type.Mineral:
+				return isConstructing ? builder.mineralUsageRate * buildSpeed : 0;
+			case Resource.Type.Energy:
+				return 0;
+		}
+		return 0;
+	}
 
-	public void UseResources(ref float mineralUsage, ref float energyUsage) {
+	public void UseResources(Resource.Usages rates) {
 		if (isConstructing) {
-			buildProgress += mineralUsage / mineralCost * Time.deltaTime;
+			float mineralRate = rates[Resource.Type.Mineral];
+			float energyRate = rates[Resource.Type.Energy];
+			buildProgress += mineralRate / mineralCost * Time.deltaTime;
 			buildProgress = Mathf.Clamp01(buildProgress);
 			if (buildSpeed > 0 && buildProgress >= 1) {
 				Activate();
@@ -228,6 +237,8 @@ public class Building : MonoBehaviour, IResourceUser {
 			if (buildSpeed < 0 && buildProgress <= 0) {
 				Demolish();
 			}
+			rates[Resource.Type.Mineral] = mineralRate;
+			rates[Resource.Type.Energy] = energyRate;
 		}
 	}
 

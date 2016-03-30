@@ -1,12 +1,19 @@
 using UnityEngine;
 
-public class ResourceStorageModule : BuildingModule, IResourceStorage {
+public class ResourceStorageModule : BuildingModule, IStorage {
 
 	public float mineralCapacity;
 	public float energyCapacity;
 
-	public float GetMineralCapacity() { return mineralCapacity; }
-	public float GetEnergyCapacity() { return energyCapacity; }
+	public float GetResourceCapacity(Resource.Type type) {
+		switch (type) {
+			case Resource.Type.Mineral:
+				return mineralCapacity;
+			case Resource.Type.Energy:
+				return energyCapacity;
+		}
+		return 0;
+	}
 
 
 }

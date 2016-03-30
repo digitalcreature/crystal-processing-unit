@@ -10,20 +10,14 @@ public class EconomyDisplay : MonoBehaviour {
 	public Image mineralBar;
 	public Image energyBar;
 
-	void Awake() {
-		if (mineralCountDisplay == null) {
-			mineralCountDisplay = GetComponent<Text>();
-		}
-	}
-
 	void Update() {
-		Economy eco = Economy.main;
-		mineralCountDisplay.text = string.Format("{0}/{1} Mineral", FormatNumber(eco.mineralCount), FormatNumber(eco.mineralCapacity));
-		mineralUsageDisplay.text = string.Format("{0}", FormatNumber(-eco.mineralUsage, true));
-		energyCountDisplay.text = string.Format("{0}/{1} Energy", FormatNumber(eco.energyCount), FormatNumber(eco.energyCapacity));
-		energyUsageDisplay.text = string.Format("{0}", FormatNumber(-eco.energyUsage, true));
-		mineralBar.fillAmount = eco.mineralCount / eco.mineralCapacity;
-		energyBar.fillAmount = eco.energyCount / eco.energyCapacity;
+		// Economy eco = Economy.main;
+		// mineralCountDisplay.text = string.Format("{0}/{1} Mineral", FormatNumber(eco.mineralCount), FormatNumber(eco.mineralCapacity));
+		// mineralUsageDisplay.text = string.Format("{0}", FormatNumber(-eco.mineralRate, true));
+		// energyCountDisplay.text = string.Format("{0}/{1} Energy", FormatNumber(eco.energyCount), FormatNumber(eco.energyCapacity));
+		// energyUsageDisplay.text = string.Format("{0}", FormatNumber(-eco.energyRate, true));
+		// mineralBar.fillAmount = eco.mineralCount / eco.mineralCapacity;
+		// energyBar.fillAmount = eco.energyCount / eco.energyCapacity;
 	}
 
 	public string FormatNumber(float number, bool sign = false) {

@@ -1,10 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class MiningModule : BuildingModule, IResourceUser {
+public class MiningModule : BuildingModule, IWorker {
 
 	public float mineSpeed = 5;
-	public float energyUsage = 1;
+	public float energyRate = 1;
 	public float range = 1;
 	public LayerMask mineralMask;
 
@@ -16,12 +16,22 @@ public class MiningModule : BuildingModule, IResourceUser {
 	new Renderer renderer;
 	ParticleSystem particles;
 
-	public float GetMineralUsage() { return -mineSpeed; }
-	public float GetEnergyUsage() { return energyUsage; }
+	public float GetResourceRate(Resource.Type type) {
+		switch (type) {
+			case Resource.Type.Mineral:
+				return -mineSpeed;
+			case Resource.Type.Energy:
+				return energyRate;
+		}
+		return 0;
+	}
 
-	public void UseResources(ref float mineralUsage, ref float energyUsage) {
+	public void UseResources(Resource.Usages rates) {
+		float mineralRate = rates[Resource.Type.Mineral];
+		float energyRate = rates[Resource.Type.Energy];
 		//here is where we shrink the mineral nodes we are mining
-		mineralUsage *= energyUsage / this.energyUsage;
+		mineralRate *= energyRate / this.energyRate;
+		rates[Resource.Type.Mineral] = mineralRate;
 	}
 
 	void Awake() {
