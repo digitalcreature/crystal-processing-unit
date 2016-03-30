@@ -8,7 +8,6 @@ public class Building : MonoBehaviour, IResourceUser {
 	public int maxCount = -1;
 	public float mineralCost = 5;
 	public Transform center;
-	public Transform connectionPoint;		//point that connectors connect to
 	public bool permanent = false;
 	public string structureRenderersTag = "Building Structure";
 
@@ -109,6 +108,8 @@ public class Building : MonoBehaviour, IResourceUser {
 	public HashSet<Building> neighbors { get; private set; }
 	public HashSet<Connector> connectors { get; private set; }
 
+	HashSet<ConnectionPoint> connectionPoints;
+
 	public enum State { Placing, Constructing, Active }
 
 	public void Initialize(Builder builder, Building prefab) {
@@ -123,7 +124,6 @@ public class Building : MonoBehaviour, IResourceUser {
 			isMainBuilding = false;
 		}
 		center = (center == null) ? (transform) : (center);
-		connectionPoint = (connectionPoint == null) ? (center) : (connectionPoint);
 		structureRenderers = new RendererGroup(this, structureRenderersTag);
 		// boxCollider = GetComponent<BoxCollider>();
 		state = State.Placing;
@@ -141,6 +141,15 @@ public class Building : MonoBehaviour, IResourceUser {
 		indicator.transform.position = transform.position;
 		Rigidbody body = gameObject.AddComponent<Rigidbody>();
 		body.constraints = RigidbodyConstraints.FreezeAll;
+		connectionPoints = new HashSet<ConnectionPoint>();
+		foreach (ConnectionPoint point in GetComponentsInChildren<ConnectionPoint>()) {
+			connectionPoints.Add(point);
+		}
+		if (connectionPoints.Count == 0) {
+			ConnectionPoint point = center.gameObject.AddComponent<ConnectionPoint>();
+			point.shape = ConnectionPoint.Shape.Point;
+			connectionPoints.Add(point);
+		}
 	}
 
 	void Update() {
@@ -355,6 +364,16 @@ public class Building : MonoBehaviour, IResourceUser {
 		}
 		connectors.Clear();
 		UpdateGrid();
+	}
+
+	public Vector3 GetNearestConnectionPoint(Vector3 point) {
+		Vector3 nearest = Vector3.one * 1000000;
+		foreach (ConnectionPoint connectionPoint in connectionPoints) {
+			Vector3 candidate = connectionPoint.GetNearestPoint(point);
+			if (Vector3.Distance(candidate, point) < Vector3.Distance(nearest, point))
+				nearest = candidate;
+		}
+		return nearest;
 	}
 
 	public void Demolish() {

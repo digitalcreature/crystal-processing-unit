@@ -14,10 +14,11 @@ public class Connector : MonoBehaviour {
 		this.a = a;
 		this.b = b;
 		structureRenderers = new RendererGroup(this, structureRenderersTag);
-		Transform acp = a.connectionPoint;
-		Transform bcp = b.connectionPoint;
-		transform.position = (acp.position + bcp.position) / 2;
-		Vector3 vector = (acp.position - bcp.position);
+		Vector3 center = (a.center.position + b.center.position) / 2;
+		Vector3 ap = a.GetNearestConnectionPoint(center);
+		Vector3 bp = b.GetNearestConnectionPoint(center);
+		transform.position = (ap + bp) / 2;
+		Vector3 vector = (ap - bp);
 		Vector3 scale = transform.localScale;
 		scale.z *= vector.magnitude;
 		transform.localScale = scale;
