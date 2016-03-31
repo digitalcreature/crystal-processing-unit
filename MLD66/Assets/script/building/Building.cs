@@ -227,18 +227,16 @@ public class Building : MonoBehaviour, IWorker {
 	public float GetResourceRate(Resource.Type type) {
 		switch (type) {
 			case Resource.Type.Mineral:
-				return isConstructing ? builder.mineralUsageRate * buildSpeed : 0;
+				return isConstructing ? -builder.mineralUsageRate * buildSpeed : 0;
 			case Resource.Type.Energy:
 				return 0;
 		}
 		return 0;
 	}
 
-	public void Work(Resource.Usages rates) {
+	public void Work(Resource.Rates rates) {
 		if (isConstructing) {
-			float mineralRate = rates[Resource.Type.Mineral];
-			float energyRate = rates[Resource.Type.Energy];
-			buildProgress += mineralRate / mineralCost * Time.deltaTime;
+			buildProgress += -rates.mineral / mineralCost * Time.deltaTime;
 			buildProgress = Mathf.Clamp01(buildProgress);
 			if (buildSpeed > 0 && buildProgress >= 1) {
 				Activate();
@@ -246,8 +244,6 @@ public class Building : MonoBehaviour, IWorker {
 			if (buildSpeed < 0 && buildProgress <= 0) {
 				Demolish();
 			}
-			rates[Resource.Type.Mineral] = mineralRate;
-			rates[Resource.Type.Energy] = energyRate;
 		}
 	}
 

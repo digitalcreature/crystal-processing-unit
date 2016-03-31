@@ -46,7 +46,7 @@ public class EconomyDisplay : MonoBehaviour {
 			Economy eco = Economy.main;
 			Resource resource = eco.resources[type];
 			countDisplay.text = string.Format("{0}/{1}", FormatNumber(resource.count), FormatNumber(resource.capacity));
-			rateDisplay.text = string.Format("{0}", FormatNumber(-resource.rate, true));
+			rateDisplay.text = string.Format("{0}", FormatNumber(resource.rate, true));
 			countFill.fillAmount = resource.count / resource.capacity;
 		}
 	}

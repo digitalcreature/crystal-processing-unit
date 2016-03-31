@@ -19,19 +19,16 @@ public class MiningModule : BuildingModule, IWorker {
 	public float GetResourceRate(Resource.Type type) {
 		switch (type) {
 			case Resource.Type.Mineral:
-				return -mineSpeed;
+				return mineSpeed;
 			case Resource.Type.Energy:
-				return energyRate;
+				return -energyRate;
 		}
 		return 0;
 	}
 
-	public void Work(Resource.Usages rates) {
-		float mineralRate = rates[Resource.Type.Mineral];
-		float energyRate = rates[Resource.Type.Energy];
+	public void Work(Resource.Rates rates) {
 		//here is where we shrink the mineral nodes we are mining
-		mineralRate *= energyRate / this.energyRate;
-		rates[Resource.Type.Mineral] = mineralRate;
+		rates.mineral *= rates.energy / -energyRate;
 	}
 
 	void Awake() {

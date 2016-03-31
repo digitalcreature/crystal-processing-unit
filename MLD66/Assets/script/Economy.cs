@@ -30,7 +30,7 @@ public class Resource {
 	public float gain { get; private set; }
 	public float loss { get; private set; }
 	public float rate { get { return gain + (loss * lossFactor); } }
-	public float delta { get { return rate * -Time.deltaTime; } }
+	public float delta { get { return rate * Time.deltaTime; } }
 	public float lossFactor {
 		get {
 			if (gain + loss < 0 && count < 0)
@@ -42,21 +42,28 @@ public class Resource {
 
 	public enum Type { Mineral, Energy }
 
-	public class Usages : Dictionary<Type, float> {}
+	public class Rates : Dictionary<Type, float> {
+
+		public float mineral { get { return this[Type.Mineral]; } set { this[Type.Mineral] = value; } }
+		public float energy { get { return this[Type.Energy]; } set { this[Type.Energy] = value; } }
+
+	}
 
 	public class Database : Dictionary<Type, Resource> {
 
 		HashSet<IWorker> workers;
-		Usages usages;
+		Rates expectedRates;
+		Rates rates;
 
 		public Database() : base() {
 			workers = new HashSet<IWorker>();
-			usages = new Usages();
+			expectedRates = new Rates();
+			rates = new Rates();
 		}
 
 		public void Update() {
 			workers.Clear();
-			foreach (Resource resource in this.Values) {
+			foreach (Resource resource in Values) {
 				resource.capacity = 0;
 			}
 			//find all resource workers on the grid
@@ -71,18 +78,17 @@ public class Resource {
 						//while were at it, tally up storage capacities
 						if (component is IStorage) {
 							IStorage storage = (IStorage) component;
-							foreach (Type type in this.Keys) {
+							foreach (Type type in Keys) {
 								this[type].capacity += storage.GetResourceCapacity(type);
 							}
 						}
 					}
 				}
 			}
-			foreach (Resource resource in this.Values) {
+			foreach (Resource resource in Values) {
 				resource.gain = 0;
 				resource.loss = 0;
 			}
-			usages.Clear();
 			foreach (IWorker worker in workers) {
 				foreach (Type type in Keys) {
 					Resource resource = this[type];
@@ -91,11 +97,25 @@ public class Resource {
 					if (workerRate < 0) resource.loss += workerRate;
 				}
 			}
+			rates.Clear();
+			expectedRates.Clear();
 			foreach (IWorker worker in workers) {
 				foreach (Type type in Keys) {
-					usages[type] = worker.GetResourceRate(type);
+					expectedRates[type] = worker.GetResourceRate(type);
+					rates[type] = expectedRates[type];
 				}
-				worker.Work(usages);
+				worker.Work(rates);
+				foreach (Type type in rates.Keys) {
+					if (ContainsKey(type)) {
+						Resource resource = this[type];
+						float expectedRate = expectedRates[type];
+						float rate = rates[type];
+						if (expectedRate > 0) resource.gain -= expectedRate;
+						if (expectedRate < 0) resource.loss -= expectedRate;
+						if (rate > 0) resource.gain += rate;
+						if (rate < 0) resource.loss += rate;
+					}
+				}
 			}
 			foreach (Resource resource in Values) {
 				resource.count += resource.delta;
@@ -112,7 +132,7 @@ public interface IWorker {
 
 	float GetResourceRate(Resource.Type type);
 
-	void Work(Resource.Usages rates);
+	void Work(Resource.Rates rates);
 
 }
 
