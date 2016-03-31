@@ -4,7 +4,6 @@ using System.Collections.Generic;
 //a building
 public class Building : MonoBehaviour, IWorker {
 
-	public bool isMainBuilding = false;
 	public int maxCount = -1;
 	public float mineralCost = 5;
 	public Transform center;
@@ -65,6 +64,19 @@ public class Building : MonoBehaviour, IWorker {
 
 	//reference to main building module, null if none present
 	public static MainBuildingModule mainBuildingModule { get; private set; }
+	public bool isMainBuilding {
+		get {
+			//if this is a prefab, builder will be null and mainBuilding will
+			//be some instaniated instance, so check for module
+			if (builder == null) {
+				return GetComponentInChildren<MainBuildingModule>() != null;
+			}
+			else {
+				//otherwise just compare directly
+				return mainBuilding == this;
+			}
+		}
+	}
 	public static Building mainBuilding { get { return mainBuildingModule == null ? null : mainBuildingModule.building; } }
 	static HashSet<Building> _grid;
 	public static HashSet<Building> grid { get { if (_grid == null) _grid = new HashSet<Building>(); return _grid; } }
@@ -118,10 +130,7 @@ public class Building : MonoBehaviour, IWorker {
 		MainBuildingModule mainBuildingModule = GetComponent<MainBuildingModule>();
 		if (mainBuildingModule != null) {
 			Building.mainBuildingModule = mainBuildingModule;
-			isMainBuilding = true;	//isMainBuilding should be set **ON THE PREFAB** this is just here to make sure its right at runtime
-		}
-		else {
-			isMainBuilding = false;
+			permanent = true;
 		}
 		center = (center == null) ? (transform) : (center);
 		structureRenderers = new RendererGroup(this, structureRenderersTag);
