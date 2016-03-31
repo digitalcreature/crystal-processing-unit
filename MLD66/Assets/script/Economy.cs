@@ -27,6 +27,19 @@ public class Resource {
 	public float capacity { get; private set; }
 	public float count { get; set; }
 
+	public float gain { get; private set; }
+	public float loss { get; private set; }
+	public float rate { get { return gain + (loss * lossFactor); } }
+	public float delta { get { return rate * -Time.deltaTime; } }
+	public float lossFactor {
+		get {
+			if (gain + loss < 0 && count < 0)
+				return gain / -loss;
+			else
+				return 1;
+		}
+	}
+
 	public enum Type { Mineral, Energy }
 
 	public class Usages : Dictionary<Type, float> {}
@@ -34,9 +47,11 @@ public class Resource {
 	public class Database : Dictionary<Type, Resource> {
 
 		HashSet<IWorker> workers;
+		Usages usages;
 
 		public Database() : base() {
 			workers = new HashSet<IWorker>();
+			usages = new Usages();
 		}
 
 		public void Update() {
@@ -50,18 +65,41 @@ public class Resource {
 				if (building.isActive) {
 					foreach (BuildingModule component in building.modules) {
 						if (component is IWorker) {
-							IWorker user = (IWorker) component;
-							workers.Add(user);
+							IWorker worker = (IWorker) component;
+							workers.Add(worker);
 						}
 						//while were at it, tally up storage capacities
 						if (component is IStorage) {
-							IStorage resourceStorage = (IStorage) component;
+							IStorage storage = (IStorage) component;
 							foreach (Type type in this.Keys) {
-								this[type].capacity += resourceStorage.GetResourceCapacity(type);
+								this[type].capacity += storage.GetResourceCapacity(type);
 							}
 						}
 					}
 				}
+			}
+			foreach (Resource resource in this.Values) {
+				resource.gain = 0;
+				resource.loss = 0;
+			}
+			usages.Clear();
+			foreach (IWorker worker in workers) {
+				foreach (Type type in Keys) {
+					Resource resource = this[type];
+					float workerRate = worker.GetResourceRate(type);
+					if (workerRate > 0) resource.gain += workerRate;
+					if (workerRate < 0) resource.loss += workerRate;
+				}
+			}
+			foreach (IWorker worker in workers) {
+				foreach (Type type in Keys) {
+					usages[type] = worker.GetResourceRate(type);
+				}
+				worker.Work(usages);
+			}
+			foreach (Resource resource in Values) {
+				resource.count += resource.delta;
+				resource.count = Mathf.Clamp(resource.count, 0, resource.capacity);
 			}
 		}
 
@@ -74,7 +112,7 @@ public interface IWorker {
 
 	float GetResourceRate(Resource.Type type);
 
-	void UseResources(Resource.Usages rates);
+	void Work(Resource.Usages rates);
 
 }
 

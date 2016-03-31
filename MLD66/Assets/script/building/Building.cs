@@ -225,7 +225,7 @@ public class Building : MonoBehaviour, IWorker {
 		return 0;
 	}
 
-	public void UseResources(Resource.Usages rates) {
+	public void Work(Resource.Usages rates) {
 		if (isConstructing) {
 			float mineralRate = rates[Resource.Type.Mineral];
 			float energyRate = rates[Resource.Type.Energy];

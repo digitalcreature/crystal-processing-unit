@@ -13,7 +13,7 @@ public class SolarPanelModule : BuildingModule, IWorker {
 		}
 	}
 
-	public void UseResources(Resource.Usages rates) {
+	public void Work(Resource.Usages rates) {
 		//dont really do much here tbh
 	}
 

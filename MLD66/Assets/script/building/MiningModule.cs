@@ -26,7 +26,7 @@ public class MiningModule : BuildingModule, IWorker {
 		return 0;
 	}
 
-	public void UseResources(Resource.Usages rates) {
+	public void Work(Resource.Usages rates) {
 		float mineralRate = rates[Resource.Type.Mineral];
 		float energyRate = rates[Resource.Type.Energy];
 		//here is where we shrink the mineral nodes we are mining

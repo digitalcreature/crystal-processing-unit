@@ -3,24 +3,20 @@ using UnityEngine.UI;
 
 public class EconomyDisplay : MonoBehaviour {
 
-	public Text mineralCountDisplay;
-	public Text mineralUsageDisplay;
-	public Text energyCountDisplay;
-	public Text energyUsageDisplay;
-	public Image mineralBar;
-	public Image energyBar;
+	public ResourceDisplay mineral;
+	public ResourceDisplay energy;
 
-	void Update() {
-		// Economy eco = Economy.main;
-		// mineralCountDisplay.text = string.Format("{0}/{1} Mineral", FormatNumber(eco.mineralCount), FormatNumber(eco.mineralCapacity));
-		// mineralUsageDisplay.text = string.Format("{0}", FormatNumber(-eco.mineralRate, true));
-		// energyCountDisplay.text = string.Format("{0}/{1} Energy", FormatNumber(eco.energyCount), FormatNumber(eco.energyCapacity));
-		// energyUsageDisplay.text = string.Format("{0}", FormatNumber(-eco.energyRate, true));
-		// mineralBar.fillAmount = eco.mineralCount / eco.mineralCapacity;
-		// energyBar.fillAmount = eco.energyCount / eco.energyCapacity;
+	void Awake() {
+		mineral.type = Resource.Type.Mineral;
+		energy.type = Resource.Type.Energy;
 	}
 
-	public string FormatNumber(float number, bool sign = false) {
+	void Update() {
+		mineral.Update();
+		energy.Update();
+	}
+
+	public static string FormatNumber(float number, bool sign = false) {
 		string postfix = "";
 		if (number >= 1000000000) {	//billions
 			number /= 1000000000;
@@ -36,5 +32,24 @@ public class EconomyDisplay : MonoBehaviour {
 		}
 		return string.Format(sign ? "{0:+#.00;-#.00;0.00}{1}" : "{0:0.00}{1}", number, postfix);
 	}
+
+	[System.Serializable]
+	public class ResourceDisplay {
+
+		[HideInInspector]
+		public Resource.Type type;
+		public Text countDisplay;
+		public Text rateDisplay;
+		public Image countFill;
+
+		public void Update() {
+			Economy eco = Economy.main;
+			Resource resource = eco.resources[type];
+			countDisplay.text = string.Format("{0}/{1}", FormatNumber(resource.count), FormatNumber(resource.capacity));
+			rateDisplay.text = string.Format("{0}", FormatNumber(-resource.rate, true));
+			countFill.fillAmount = resource.count / resource.capacity;
+		}
+	}
+
 
 }
