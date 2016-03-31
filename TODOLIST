@@ -1,0 +1,9 @@
+finish economy
+	make EconomyDisplay show gain and loss as well as net rate
+	implement resource usage scaling (when loss > gain scale it so that loss + gain = 0)
+make mining module show connections to mineral nodes
+make solar panel dependant on sunlight
+clean up building.cs
+implement enemies and turrets
+playtest and balance things
+????
