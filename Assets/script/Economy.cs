@@ -29,16 +29,8 @@ public class Resource {
 
 	public float gain { get; private set; }
 	public float loss { get; private set; }
-	public float rate { get { return gain + (loss * lossFactor); } }
+	public float rate { get { return gain + loss; } }
 	public float delta { get { return rate * Time.deltaTime; } }
-	public float lossFactor {
-		get {
-			if (gain + loss < 0 && count < 0)
-				return gain / -loss;
-			else
-				return 1;
-		}
-	}
 
 	public enum Type { Mineral, Energy }
 
@@ -52,12 +44,10 @@ public class Resource {
 	public class Database : Dictionary<Type, Resource> {
 
 		HashSet<IWorker> workers;
-		Rates expectedRates;
 		Rates rates;
 
 		public Database() : base() {
 			workers = new HashSet<IWorker>();
-			expectedRates = new Rates();
 			rates = new Rates();
 		}
 
@@ -86,40 +76,42 @@ public class Resource {
 				}
 			}
 			foreach (Resource resource in Values) {
+				//reset global usage rates this frame
 				resource.gain = 0;
 				resource.loss = 0;
 			}
 			foreach (IWorker worker in workers) {
+				//find out how much of each resource the worker needs
+				rates.Clear();
+				bool canWork = true;	//this flag is false if there isnt enough of the required resources for this worker to work this frame
 				foreach (Type type in Keys) {
 					Resource resource = this[type];
-					float workerRate = worker.GetResourceRate(type);
-					if (workerRate > 0) resource.gain += workerRate;
-					if (workerRate < 0) resource.loss += workerRate;
-				}
-			}
-			rates.Clear();
-			expectedRates.Clear();
-			foreach (IWorker worker in workers) {
-				foreach (Type type in Keys) {
-					expectedRates[type] = worker.GetResourceRate(type);
-					rates[type] = expectedRates[type];
-				}
-				worker.Work(rates);
-				foreach (Type type in rates.Keys) {
-					if (ContainsKey(type)) {
-						Resource resource = this[type];
-						float expectedRate = expectedRates[type];
-						float rate = rates[type];
-						if (expectedRate > 0) resource.gain -= expectedRate;
-						if (expectedRate < 0) resource.loss -= expectedRate;
-						if (rate > 0) resource.gain += rate;
-						if (rate < 0) resource.loss += rate;
+					float rate = worker.GetResourceRate(type);
+					rates[type] = rate;
+					if (resource.count + (rate * Time.deltaTime) < 0) {
+						canWork = false;
+						break;
 					}
 				}
-			}
-			foreach (Resource resource in Values) {
-				resource.count += resource.delta;
-				resource.count = Mathf.Clamp(resource.count, 0, resource.capacity);
+				if (canWork) {
+					//if we have the resources we need, do the work
+					foreach (Type type in Keys) {
+						//first update the global usage rates of the resources being used
+						float rate = rates[type];
+						if (rate > 0)
+							this[type].gain += rate;
+						else
+							this[type].loss += rate;
+					}
+					//do the work
+					worker.Work(rates);
+					foreach (Type type in Keys) {
+						//update the resources based on rates
+						Resource resource = this[type];
+						resource.count += rates[type] * Time.deltaTime;
+						resource.count = Mathf.Clamp(resource.count, 0, resource.capacity);
+					}
+				}
 			}
 		}
 
@@ -130,14 +122,20 @@ public class Resource {
 
 public interface IWorker {
 
+	//get the usage rate for a resource
+	//called once per resource each frame
 	float GetResourceRate(Resource.Type type);
 
+	//do the work using a certain allocation of resources
+	//called each frame if there are enough resources available
 	void Work(Resource.Rates rates);
 
 }
 
 public interface IStorage {
 
+	//return the capacity of this storage unit
+	//called each frame (storage units can be dynamic)
 	float GetResourceCapacity(Resource.Type type);
 
 }

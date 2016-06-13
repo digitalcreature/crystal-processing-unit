@@ -10,6 +10,8 @@ public class Building : MonoBehaviour, IWorker {
 	public bool permanent = false;
 	public string structureRenderersTag = "Building Structure";
 
+	public enum State { Placing, Constructing, Active }
+
 	public State state { get; private set; }
 	public bool isPlacing { get { return state == State.Placing; } }
 	public bool isConstructing { get { return state == State.Constructing; } }
@@ -79,10 +81,14 @@ public class Building : MonoBehaviour, IWorker {
 	}
 	public static Building mainBuilding { get { return mainBuildingModule == null ? null : mainBuildingModule.building; } }
 	static HashSet<Building> _grid;
+	//set of buildings connected to power grid
 	public static HashSet<Building> grid { get { if (_grid == null) _grid = new HashSet<Building>(); return _grid; } }
+	//true if connected to power grid, false otherwise
 	public bool isConnected {
 		get { return grid.Contains(this); }
 	}
+	//distance from main building measured in power connections
+	public int distanceFromMainBuilding { get; private set; }
 
 	//counts for each building prefab
 	static Dictionary<Building, int> _counts; //maps building prefabs to count of existing buildings
@@ -122,7 +128,6 @@ public class Building : MonoBehaviour, IWorker {
 
 	HashSet<ConnectionPoint> connectionPoints;
 
-	public enum State { Placing, Constructing, Active }
 
 	public void Initialize(Builder builder, Building prefab) {
 		this.builder = builder;
@@ -405,12 +410,14 @@ public class Building : MonoBehaviour, IWorker {
 		if (mainBuilding != null) {
 			Queue<Building> queue = new Queue<Building>();
 			queue.Enqueue(mainBuilding);
+			mainBuilding.distanceFromMainBuilding = 0;
 			while (queue.Count > 0) {
 				Building building = queue.Dequeue();
 				grid.Add(building);
-				if (building.state != State.Constructing) {
+				if (building.state == State.Active) {
 					foreach (Building neighbor in building.neighbors) {
 						if (!grid.Contains(neighbor)) {
+							neighbor.distanceFromMainBuilding = building.distanceFromMainBuilding + 1;
 							queue.Enqueue(neighbor);
 						}
 					}
