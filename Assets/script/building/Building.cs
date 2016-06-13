@@ -285,6 +285,7 @@ public class Building : MonoBehaviour, IWorker {
 						structureRenderers.material = builder.demolishSelectionMaterial;
 						if (Input.GetMouseButtonDown((int) MouseButton.Left)) {
 							StartDemolish();
+							Deactivate();
 							if (!Input.GetButton("Multi Build")) {
 								builder.status = Builder.Status.Idle;
 							}
@@ -302,6 +303,12 @@ public class Building : MonoBehaviour, IWorker {
 			module.Activate();
 		}
 		UpdateGrid();
+	}
+
+	void Deactivate() {
+		foreach (BuildingModule module in modules) {
+			module.Deactivate();
+		}
 	}
 
 	void OnCollisionStay() {

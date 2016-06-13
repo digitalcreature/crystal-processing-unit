@@ -1,7 +1,9 @@
-finish economy
-	make EconomyDisplay show gain and loss as well as net rate
-	implement resource usage scaling (when loss > gain scale it so that loss + gain = 0)
-make mining module show connections to mineral nodes
+DECIDE: how does mining work?
+	- one drill per node? (multiple nodes per drill)
+	- one node per drill? (miltiple drills per node)
+	- ??? somethign else ???
+	does mining rate scale in any way??
+	what am i doing
 make solar panel dependant on sunlight
 clean up building.cs
 implement enemies and turrets

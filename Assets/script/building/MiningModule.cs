@@ -17,17 +17,20 @@ public class MiningModule : BuildingModule, IWorker {
 	ParticleSystem particles;
 
 	public float GetResourceRate(Resource.Type type) {
-		switch (type) {
-			case Resource.Type.Mineral:
-				return mineSpeed;
-			case Resource.Type.Energy:
-				return -energyRate;
+		if (nodes.Count > 0) {
+			switch (type) {
+				case Resource.Type.Mineral:
+					return mineSpeed;
+				case Resource.Type.Energy:
+					return -energyRate;
+			}
 		}
 		return 0;
 	}
 
 	public void Work(Resource.Rates rates) {
 		//here is where we shrink the mineral nodes we are mining
+		if ()
 		rates.mineral *= rates.energy / -energyRate;
 	}
 
@@ -38,28 +41,52 @@ public class MiningModule : BuildingModule, IWorker {
 
 	public override void Activate() {
 		nodes = new HashSet<MineralNode>();
-		Connect();
-	}
-
-	public void Connect() {
 		nodes.Clear();
 		foreach (Collider collider in Physics.OverlapSphere(transform.position, range, mineralMask)) {
 			MineralNode node = collider.GetComponent<MineralNode>();
-			if (node != null) {
+			if (node != null && !node.isMined) {
 				nodes.Add(node);
+				node.miner = this;
 			}
+		}
+	}
+
+	public override void Deactivate() {
+		foreach (MineralNode node in nodes) {
+			node.miner = null;
 		}
 	}
 
 	protected override void OnActiveChange(bool active) {
 		renderer.material = active ? activeMaterial : inactiveMaterial;
 		if (active)
-			particles.Play();
+			StartMining();
 		else
-			particles.Stop();
+			StopMining();
+	}
+
+	void StartMining() {
+		particles.Play();
+		foreach (MineralNode node in nodes) {
+			node.miner = this;
+		}
+	}
+
+	void StopMining() {
+		particles.Stop();
+		foreach (MineralNode node in nodes) {
+			node.miner = null;
+		}
 	}
 
 	public override bool PlacingValid() {
-		return Physics.CheckSphere(transform.position, range, mineralMask);
+		foreach (Collider collider in Physics.OverlapSphere(transform.position, range, mineralMask)) {
+			MineralNode node = collider.GetComponent<MineralNode>();
+			if (node != null && node.isMined) {
+				return false;
+			}
+		}
+		return true;
 	}
+
 }

@@ -39,14 +39,12 @@ public class EconomyDisplay : MonoBehaviour {
 		[HideInInspector]
 		public Resource.Type type;
 		public Text countDisplay;
-		public Text rateDisplay;
 		public Image countFill;
 
 		public void Update() {
 			Economy eco = Economy.main;
 			Resource resource = eco.resources[type];
 			countDisplay.text = string.Format("{0}/{1}", FormatNumber(resource.count), FormatNumber(resource.capacity));
-			rateDisplay.text = string.Format("{0}", FormatNumber(resource.rate, true));
 			countFill.fillAmount = resource.count / resource.capacity;
 		}
 	}

@@ -274,6 +274,7 @@ MonoBehaviour:
     m_Bits: 512
   activeMaterial: {fileID: 2100000, guid: a564a7c2d4737f9408fc79d006ca8e06, type: 2}
   inactiveMaterial: {fileID: 2100000, guid: c7e3eded89419a44c956acb3edcf2f0d, type: 2}
+  connectionPrefab: {fileID: 120996, guid: 58d704214fc48e24aac1529e3bd0bba8, type: 2}
 --- !u!198 &19880986
 ParticleSystem:
   m_ObjectHideFlags: 1

@@ -23,6 +23,9 @@ public abstract class BuildingModule : MonoBehaviour {
 	//called when building becomes active
 	public virtual void Activate() {}
 
+	//called when building becomes inactive
+	public virtual void Deactivate() {}
+
 	protected virtual void Update() {
 		active = building.isConnected;
 	}
