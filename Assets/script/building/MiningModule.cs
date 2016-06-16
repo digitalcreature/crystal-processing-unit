@@ -30,7 +30,7 @@ public class MiningModule : BuildingModule, IWorker {
 
 	public void Work(Resource.Rates rates) {
 		//here is where we shrink the mineral nodes we are mining
-		if ()
+		//if ()
 		rates.mineral *= rates.energy / -energyRate;
 	}
 
